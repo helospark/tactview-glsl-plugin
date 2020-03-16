@@ -1,0 +1,7 @@
+{
+  "id": "glsl-plugin",
+  "name": "GLSL plugin",
+  "description": "Tactview plugin for GLSL shaders",
+  "author": "helospark",
+  "version": "${project.version}"
+}

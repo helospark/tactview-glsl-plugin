@@ -4,8 +4,6 @@ attribute vec2 position;
 
 varying vec2 vUv;
 
-uniform sampler2D tLensDirt;
-
 uniform float scale;
 
 void main() {

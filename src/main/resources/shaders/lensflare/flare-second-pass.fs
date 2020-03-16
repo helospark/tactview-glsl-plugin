@@ -1,5 +1,3 @@
-#define MAX_GHOSTS 4
-
 uniform sampler2D tDiffuse;
 uniform sampler2D tLensColor;
 
@@ -11,7 +9,9 @@ uniform float  uGhostDispersal;
 uniform float  uHaloWidth;
 uniform float  uDistortion;
 
-const float distanceFalloff = 1.5;
+uniform int maxGhosts;
+
+uniform float distanceFalloff;
 
 /*----------------------------------------------------------------------------*/
 vec4 textureDistorted(
@@ -39,7 +39,7 @@ void main() {
 
     ///////////////////////////////////////////////////
     //  sample ghosts:
-    for(int i = 0; i < MAX_GHOSTS; ++i){
+    for(int i = 0; i <  4; ++i){
         // offset of the ghosts
        vec2 offset = fract(texcoord + ghostVec * float(i));
 
@@ -69,7 +69,7 @@ void main() {
     //gl_FragData[0] = texture2D(tDiffuse, vUv);
     
     
-    gl_FragData[1]   += textureDistorted(
+    gl_FragData[0]   += textureDistorted(
        tDiffuse,
        fract(texcoord + haloVec),
        normalize(ghostVec),

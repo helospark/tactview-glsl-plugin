@@ -6,6 +6,7 @@ import com.helospark.lightdi.annotation.Component;
 import com.helospark.tactview.core.timeline.TimelinePosition;
 import com.helospark.tactview.core.timeline.effect.interpolation.provider.BooleanProvider;
 import com.helospark.tactview.core.timeline.effect.interpolation.provider.DoubleProvider;
+import com.helospark.tactview.core.timeline.effect.interpolation.provider.IntegerProvider;
 
 @Component
 public class UniformUtil {
@@ -34,5 +35,10 @@ public class UniformUtil {
     public void bindVec2ToUniform(int programId, int x, int y, String name) {
         int uniformLocation = GL31.glGetUniformLocation(programId, name);
         GL31.glUniform2f(uniformLocation, x, y);
+    }
+
+    public void bindIntegerProviderToUniform(int programId, IntegerProvider provider, TimelinePosition position, String name) {
+        Integer value = provider.getValueAt(position);
+        bindIntegerToUniform(programId, value, name);
     }
 }

@@ -8,9 +8,7 @@ uniform sampler2D tLensStar;
 varying vec2   vUv;
 
 uniform float  artefactScale;
-
-const float  opacity = 1.0;
-const float  mixRatio = 0.5;
+uniform float effectStrength;
 
 void main() {
 
@@ -24,6 +22,6 @@ void main() {
     // build the final fragment
     vec4 texelLensColor    = texture2D(tLensColor, vUv) * artefactColor;
     vec4 texelDiffuse  = texture2D(tDiffuse, vUv);
-    gl_FragData[0]       = texelDiffuse +  texelLensColor * 0.3;
+    gl_FragData[0]       = texelDiffuse +  texelLensColor * effectStrength;
     //gl_FragData[0] = mix(texelDiffuse, texelLensColor, mixRatio ); 
 }

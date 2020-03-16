@@ -15,8 +15,6 @@ import static org.lwjgl.opengl.GL11.glDisable;
 import static org.lwjgl.opengl.GL11.glGenTextures;
 import static org.lwjgl.opengl.GL11.glTexImage2D;
 import static org.lwjgl.opengl.GL11.glTexParameteri;
-import static org.lwjgl.opengl.GL20.glGetUniformLocation;
-import static org.lwjgl.opengl.GL20.glUniform1i;
 import static org.lwjgl.opengl.GL20.glUseProgram;
 
 import java.nio.ByteBuffer;
@@ -32,8 +30,12 @@ import com.helospark.tactview.core.save.LoadMetadata;
 import com.helospark.tactview.core.timeline.StatelessEffect;
 import com.helospark.tactview.core.timeline.StatelessVideoEffect;
 import com.helospark.tactview.core.timeline.TimelineInterval;
+import com.helospark.tactview.core.timeline.TimelinePosition;
 import com.helospark.tactview.core.timeline.effect.StatelessEffectRequest;
 import com.helospark.tactview.core.timeline.effect.interpolation.ValueProviderDescriptor;
+import com.helospark.tactview.core.timeline.effect.interpolation.interpolator.MultiKeyframeBasedDoubleInterpolator;
+import com.helospark.tactview.core.timeline.effect.interpolation.provider.DoubleProvider;
+import com.helospark.tactview.core.timeline.effect.interpolation.provider.IntegerProvider;
 import com.helospark.tactview.core.timeline.image.ClipImage;
 import com.helospark.tactview.core.timeline.image.ReadOnlyClipImage;
 
@@ -50,6 +52,20 @@ public class GlslLensFlareEffect extends StatelessVideoEffect {
     int firstPhaseOutputTexture;
     int secondPhaseOutputTexture;
     double scale = 1.0;
+
+    private DoubleProvider scaleProvider;
+
+    private DoubleProvider highlightMultiplierProvider;
+    private DoubleProvider highlightBiasProvider;
+
+    private DoubleProvider distanceFalloffProvider;
+    private DoubleProvider haloWidthProvider;
+    private DoubleProvider haloDistortionProvider;
+    private DoubleProvider ghostDispersalProvider;
+    private IntegerProvider maxGhostsProvider;
+
+    private DoubleProvider artifactScaleProvider;
+    private DoubleProvider effectStrengthProvider;
 
     public GlslLensFlareEffect(TimelineInterval interval, GlslUtil glslUtil, RenderBufferProvider renderBufferProvider, VertexBufferProvider vertexBufferProvider,
             UniformUtil uniformUtil, TextureLoader textureLoader) {
@@ -98,22 +114,23 @@ public class GlslLensFlareEffect extends StatelessVideoEffect {
 
             bindInputTexture(height, width, inputBuffer, programId);
 
-            uniformUtil.bindFloatToUniform(programId, (float) scale, "scale");
-            uniformUtil.bindFloatToUniform(programId, 0.7f, "uBias");
-            uniformUtil.bindFloatToUniform(programId, 4.0f, "uScale");
+            TimelinePosition position = request.getEffectPosition();
+            uniformUtil.bindDoubleProviderToUniform(programId, scaleProvider, position, "scale");
+            uniformUtil.bindDoubleProviderToUniform(programId, highlightBiasProvider, position, "uBias");
+            uniformUtil.bindDoubleProviderToUniform(programId, highlightMultiplierProvider, position, "uScale");
 
             render(programId);
 
             // second phase
 
-            programId = glslUtil.createProgram("shaders/lensflare/scale-pass.vs", "shaders/lensflare/flare-second-pass.fs");
+            programId = glslUtil.createProgram("shaders/lensflare/pass.vs", "shaders/lensflare/flare-second-pass.fs");
             GL31.glUseProgram(programId);
 
             GL31.glActiveTexture(GL31.GL_TEXTURE3);
             glBindTexture(GL31.GL_TEXTURE_2D, secondPhaseOutputTexture);
             glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
-            Integer renderbufferData2 = renderBufferProvider.getFrameBufferAttachedTexture(secondPhaseOutputTexture, GL31.GL_COLOR_ATTACHMENT1);
-            glBindFramebufferEXT(GL31.GL_FRAMEBUFFER, renderbufferData2);
+            Integer renderbuffer2 = renderBufferProvider.getFrameBufferAttachedTexture(secondPhaseOutputTexture, GL31.GL_COLOR_ATTACHMENT1);
+            glBindFramebufferEXT(GL31.GL_FRAMEBUFFER, renderbuffer2);
 
             GL11.glViewport(0, 0, width, height);
 
@@ -121,22 +138,22 @@ public class GlslLensFlareEffect extends StatelessVideoEffect {
             GL31.glBindTexture(GL31.GL_TEXTURE_2D, firstPhaseOutputTexture);
             uniformUtil.bindIntegerToUniform(programId, 0, "tDiffuse");
 
-            printUniforms(programId);
-
             GL31.glActiveTexture(GL31.GL_TEXTURE1);
             int lensColorTexture = textureLoader.loadTexture("shaders/lensflare/data/lenscolor.png");
             glBindTexture(GL31.GL_TEXTURE_2D, lensColorTexture);
+
+            uniformUtil.bindDoubleProviderToUniform(programId, ghostDispersalProvider, position, "uGhostDispersal");
+            uniformUtil.bindDoubleProviderToUniform(programId, haloWidthProvider, position, "uHaloWidth");
+            uniformUtil.bindDoubleProviderToUniform(programId, haloDistortionProvider, position, "uDistortion");
+            uniformUtil.bindDoubleProviderToUniform(programId, distanceFalloffProvider, position, "distanceFalloff");
+            uniformUtil.bindIntegerProviderToUniform(programId, maxGhostsProvider, position, "maxGhosts");
+
             uniformUtil.bindIntegerToUniform(programId, 1, "tLensColor");
-            uniformUtil.bindFloatToUniform(programId, 0.35f, "uGhostDispersal");
-            uniformUtil.bindFloatToUniform(programId, 0.25f, "uHaloWidth");
-            uniformUtil.bindFloatToUniform(programId, 4.5f, "uDistortion");
             uniformUtil.bindVec2ToUniform(programId, downSampledWidth, downSampledHeight, "textureSize");
-            uniformUtil.bindFloatToUniform(programId, (float) (1.0), "scale");
 
             render(programId);
 
-            // end of phase 2
-            // phase 3
+            // 3rd phase
             programId = glslUtil.createProgram("shaders/lensflare/pass.vs", "shaders/lensflare/flare-third-pass.fs");
             GL31.glUseProgram(programId);
 
@@ -148,8 +165,6 @@ public class GlslLensFlareEffect extends StatelessVideoEffect {
             GL31.glActiveTexture(GL31.GL_TEXTURE0);
             glBindTexture(GL_TEXTURE_2D, tex);
             uniformUtil.bindIntegerToUniform(programId, 0, "tDiffuse");
-
-            printUniforms(programId);
 
             GL31.glActiveTexture(GL31.GL_TEXTURE1);
             glBindTexture(GL_TEXTURE_2D, secondPhaseOutputTexture);
@@ -163,23 +178,11 @@ public class GlslLensFlareEffect extends StatelessVideoEffect {
             glBindTexture(GL_TEXTURE_2D, textureLoader.loadTexture("shaders/lensflare/data/lensstar.png"));
             uniformUtil.bindIntegerToUniform(programId, 3, "tLensStar");
 
-            uniformUtil.bindFloatToUniform(programId, 10.0f, "artefactScale");
-            uniformUtil.bindFloatToUniform(programId, 0.5f, "blendRatio");
-            uniformUtil.bindFloatToUniform(programId, 0.5f, "opacity");
-            uniformUtil.bindFloatToUniform(programId, 0.5f, "blendRatio");
+            uniformUtil.bindDoubleProviderToUniform(programId, artifactScaleProvider, position, "artefactScale");
+            uniformUtil.bindDoubleProviderToUniform(programId, effectStrengthProvider, position, "effectStrength");
 
             render(programId);
 
-            /**
-             * uniform vec2   textureSize;
-            uniform float  uGhostDispersal;
-            
-            uniform float  uHaloWidth;
-            uniform float  uDistortion;
-             * 
-             */
-
-            // -----------
             ClipImage result = readColorAttachement(GL31.GL_COLOR_ATTACHMENT1, width, height);
 
             vertexBufferProvider.unbind();
@@ -187,21 +190,11 @@ public class GlslLensFlareEffect extends StatelessVideoEffect {
             glUseProgram(0);
             renderBufferProvider.returnRenderBufferData(width, height, renderbufferData);
             renderBufferProvider.returnFrameBuffer(renderbuffer);
+            renderBufferProvider.returnFrameBuffer(renderbuffer2);
 
             return result;
         });
 
-    }
-
-    protected void printUniforms(int programId) {
-        int count = GL31.glGetProgrami(programId, GL31.GL_ACTIVE_UNIFORMS);
-        System.out.println("Active Uniforms: %d " + count);
-
-        for (int i = 0; i < count; i++) {
-            String name = GL31.glGetActiveUniformName(programId, i);
-
-            System.out.println("Uniform #%d Type: %u Name: " + i + " " + name);
-        }
     }
 
     protected ClipImage readColorAttachement(int colorAttachement, int width, int height) {
@@ -224,11 +217,70 @@ public class GlslLensFlareEffect extends StatelessVideoEffect {
 
     @Override
     protected void initializeValueProviderInternal() {
+        scaleProvider = new DoubleProvider(0.1, 1.0, new MultiKeyframeBasedDoubleInterpolator(1.0));
+
+        highlightMultiplierProvider = new DoubleProvider(1.0, 20.0, new MultiKeyframeBasedDoubleInterpolator(10.0));
+        highlightBiasProvider = new DoubleProvider(0.0, 1.0, new MultiKeyframeBasedDoubleInterpolator(0.9));
+
+        distanceFalloffProvider = new DoubleProvider(1.0, 20.0, new MultiKeyframeBasedDoubleInterpolator(10));
+        haloWidthProvider = new DoubleProvider(1.0, 10.0, new MultiKeyframeBasedDoubleInterpolator(1.5));
+        haloDistortionProvider = new DoubleProvider(0.1, 1.0, new MultiKeyframeBasedDoubleInterpolator(0.25));
+        ghostDispersalProvider = new DoubleProvider(0.1, 1.0, new MultiKeyframeBasedDoubleInterpolator(0.4));
+        maxGhostsProvider = new IntegerProvider(1, 10, new MultiKeyframeBasedDoubleInterpolator(4.0));
+
+        artifactScaleProvider = new DoubleProvider(1.0, 30.0, new MultiKeyframeBasedDoubleInterpolator(10.0));
+        effectStrengthProvider = new DoubleProvider(0.0, 2.0, new MultiKeyframeBasedDoubleInterpolator(0.5));
     }
 
     @Override
     protected List<ValueProviderDescriptor> getValueProvidersInternal() {
-        return List.of();
+        ValueProviderDescriptor scaleProviderDescriptor = ValueProviderDescriptor.builder()
+                .withKeyframeableEffect(scaleProvider)
+                .withName("Prescale")
+                .build();
+        ValueProviderDescriptor multiplierDescriptor = ValueProviderDescriptor.builder()
+                .withKeyframeableEffect(highlightMultiplierProvider)
+                .withName("Highlight multiplier")
+                .build();
+        ValueProviderDescriptor highlightBiasProviderDescriptor = ValueProviderDescriptor.builder()
+                .withKeyframeableEffect(highlightBiasProvider)
+                .withName("Highlight threshold")
+                .build();
+        ValueProviderDescriptor distanceFalloffProviderDescriptor = ValueProviderDescriptor.builder()
+                .withKeyframeableEffect(distanceFalloffProvider)
+                .withName("Distance falloff")
+                .build();
+        ValueProviderDescriptor haloWidthProviderDescriptor = ValueProviderDescriptor.builder()
+                .withKeyframeableEffect(haloWidthProvider)
+                .withName("Halo width")
+                .build();
+
+        ValueProviderDescriptor haloDistortionProviderDescriptor = ValueProviderDescriptor.builder()
+                .withKeyframeableEffect(haloDistortionProvider)
+                .withName("Halo distortion")
+                .build();
+
+        ValueProviderDescriptor ghostDispersalProviderDescriptor = ValueProviderDescriptor.builder()
+                .withKeyframeableEffect(ghostDispersalProvider)
+                .withName("Ghost dispersal")
+                .build();
+
+        ValueProviderDescriptor maxGhostsProviderDescriptor = ValueProviderDescriptor.builder()
+                .withKeyframeableEffect(maxGhostsProvider)
+                .withName("Max ghosts")
+                .build();
+
+        ValueProviderDescriptor artifactScaleProviderDescriptor = ValueProviderDescriptor.builder()
+                .withKeyframeableEffect(artifactScaleProvider)
+                .withName("Artifact scale")
+                .build();
+
+        ValueProviderDescriptor effectStrengthDescriptor = ValueProviderDescriptor.builder()
+                .withKeyframeableEffect(effectStrengthProvider)
+                .withName("Strength")
+                .build();
+        return List.of(scaleProviderDescriptor, multiplierDescriptor, highlightBiasProviderDescriptor, distanceFalloffProviderDescriptor, haloWidthProviderDescriptor, haloDistortionProviderDescriptor,
+                ghostDispersalProviderDescriptor, maxGhostsProviderDescriptor, artifactScaleProviderDescriptor, effectStrengthDescriptor);
     }
 
     @Override
@@ -251,8 +303,6 @@ public class GlslLensFlareEffect extends StatelessVideoEffect {
         glBindTexture(GL_TEXTURE_2D, tex);
         resultBuffer.position(0);
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, resultBuffer);
-        int inputTextureLocation = glGetUniformLocation(programId, "tDiffuse");
-        glUniform1i(inputTextureLocation, 0);
     }
 
 }

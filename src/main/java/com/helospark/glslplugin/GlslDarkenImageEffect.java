@@ -19,7 +19,10 @@ public class GlslDarkenImageEffect extends AbstractRegularGlslStatelessVideoEffe
     private DoubleProvider multiplierProvider;
 
     public GlslDarkenImageEffect(TimelineInterval interval, GlslUtil glslUtil, RenderBufferProvider renderBufferProvider, VertexBufferProvider vertexBufferProvider) {
-        super(interval, renderBufferProvider, vertexBufferProvider, glslUtil, "sobel-edge-vs.glsl", "sobel-edge-fs.glsl");
+        super(interval, renderBufferProvider, vertexBufferProvider, glslUtil);
+
+        this.vertexShader = "sobel-edge-vs.glsl";
+        this.fragmentShader = "sobel-edge-fs.glsl";
     }
 
     public GlslDarkenImageEffect(JsonNode node, LoadMetadata loadMetadata) {

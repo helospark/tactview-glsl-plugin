@@ -222,7 +222,7 @@ public class GlslLensFlareEffect extends StatelessVideoEffect {
         highlightMultiplierProvider = new DoubleProvider(1.0, 20.0, new MultiKeyframeBasedDoubleInterpolator(10.0));
         highlightBiasProvider = new DoubleProvider(0.0, 1.0, new MultiKeyframeBasedDoubleInterpolator(0.9));
 
-        distanceFalloffProvider = new DoubleProvider(1.0, 20.0, new MultiKeyframeBasedDoubleInterpolator(10));
+        distanceFalloffProvider = new DoubleProvider(1.0, 20.0, new MultiKeyframeBasedDoubleInterpolator(10.0));
         haloWidthProvider = new DoubleProvider(1.0, 10.0, new MultiKeyframeBasedDoubleInterpolator(1.5));
         haloDistortionProvider = new DoubleProvider(0.1, 1.0, new MultiKeyframeBasedDoubleInterpolator(0.25));
         ghostDispersalProvider = new DoubleProvider(0.1, 1.0, new MultiKeyframeBasedDoubleInterpolator(0.4));

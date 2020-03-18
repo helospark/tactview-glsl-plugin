@@ -45,8 +45,8 @@ import com.helospark.tactview.core.timeline.image.ReadOnlyClipImage;
 public abstract class AbstractRegularGlslStatelessVideoEffect extends StatelessVideoEffect {
     private int tex;
 
-    private String vertexShader;
-    private String fragmentShader;
+    protected String vertexShader;
+    protected String fragmentShader;
 
     protected RenderBufferProvider renderBufferProvider;
     protected VertexBufferProvider vertexBufferProvider;
@@ -55,16 +55,11 @@ public abstract class AbstractRegularGlslStatelessVideoEffect extends StatelessV
     public AbstractRegularGlslStatelessVideoEffect(TimelineInterval interval,
             RenderBufferProvider renderBufferProvider,
             VertexBufferProvider vertexBufferProvider,
-            GlslUtil glslUtil,
-            String vertexShader,
-            String fragmentShader) {
+            GlslUtil glslUtil) {
         super(interval);
         this.renderBufferProvider = renderBufferProvider;
         this.vertexBufferProvider = vertexBufferProvider;
         this.glslUtil = glslUtil;
-
-        this.vertexShader = vertexShader;
-        this.fragmentShader = fragmentShader;
 
         this.tex = GlslPlatform.runOnGlThread(() -> createTexture());
     }
@@ -92,6 +87,12 @@ public abstract class AbstractRegularGlslStatelessVideoEffect extends StatelessV
 
         return GlslPlatform.runOnGlThread(() -> {
             glDisable(GL_DEPTH_TEST);
+
+            initRender(request);
+
+            if (vertexShader == null || fragmentShader == null) {
+                return ClipImage.sameSizeAs(request.getCurrentFrame());
+            }
 
             int programId = glslUtil.createProgram(vertexShader, fragmentShader);
             glUseProgram(programId);
@@ -127,6 +128,10 @@ public abstract class AbstractRegularGlslStatelessVideoEffect extends StatelessV
 
             return result;
         });
+
+    }
+
+    protected void initRender(StatelessEffectRequest request) {
 
     }
 

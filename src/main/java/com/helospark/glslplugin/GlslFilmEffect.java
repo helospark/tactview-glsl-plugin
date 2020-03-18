@@ -13,7 +13,6 @@ import com.helospark.tactview.core.timeline.TimelineInterval;
 import com.helospark.tactview.core.timeline.TimelinePosition;
 import com.helospark.tactview.core.timeline.effect.StatelessEffectRequest;
 import com.helospark.tactview.core.timeline.effect.interpolation.ValueProviderDescriptor;
-import com.helospark.tactview.core.timeline.effect.interpolation.interpolator.MultiKeyframeBasedDoubleInterpolator;
 import com.helospark.tactview.core.timeline.effect.interpolation.provider.BooleanProvider;
 import com.helospark.tactview.core.timeline.effect.interpolation.provider.DoubleProvider;
 
@@ -36,9 +35,12 @@ public class GlslFilmEffect extends AbstractRegularGlslStatelessVideoEffect {
 
     public GlslFilmEffect(TimelineInterval interval, GlslUtil glslUtil, RenderBufferProvider renderBufferProvider, VertexBufferProvider vertexBufferProvider,
             UniformUtil uniformUtil) {
-        super(interval, renderBufferProvider, vertexBufferProvider, glslUtil, "shaders/film/film.vs", "shaders/film/film.fs");
+        super(interval, renderBufferProvider, vertexBufferProvider, glslUtil);
 
         this.uniformUtil = uniformUtil;
+
+        this.vertexShader = "shaders/common/common.vs";
+        this.fragmentShader = "shaders/glitch/software_glitch.fs";
     }
 
     public GlslFilmEffect(JsonNode node, LoadMetadata loadMetadata) {
@@ -51,87 +53,11 @@ public class GlslFilmEffect extends AbstractRegularGlslStatelessVideoEffect {
 
     @Override
     protected void initializeValueProviderInternal() {
-        grainAmountProvider = new DoubleProvider(0.0, 0.1, new MultiKeyframeBasedDoubleInterpolator(0.03));
-        coloredProvider = new BooleanProvider(new MultiKeyframeBasedDoubleInterpolator(0.0));
-        colorAmountProvider = new DoubleProvider(0.0, 2.0, new MultiKeyframeBasedDoubleInterpolator(0.6));
-        grainSizeProvider = new DoubleProvider(0.0, 10.0, new MultiKeyframeBasedDoubleInterpolator(1.9));
-        lumAmountProvider = new DoubleProvider(0.0, 2.0, new MultiKeyframeBasedDoubleInterpolator(1.0));
-
-        kProvider = new DoubleProvider(0.0, 1.0, new MultiKeyframeBasedDoubleInterpolator(0.05));
-        kCubeProvider = new DoubleProvider(0.0, 1.0, new MultiKeyframeBasedDoubleInterpolator(0.3));
-        scaleProvider = new DoubleProvider(0.0, 1.0, new MultiKeyframeBasedDoubleInterpolator(0.85));
-        dispertionProvider = new DoubleProvider(0.0, 0.1, new MultiKeyframeBasedDoubleInterpolator(0.01));
-        blurEnabledProvider = new BooleanProvider(new MultiKeyframeBasedDoubleInterpolator(0.0));
-        scratchesProvider = new DoubleProvider(0.0, 1.0, new MultiKeyframeBasedDoubleInterpolator(0.1));
-        burnProvider = new DoubleProvider(0.0, 1.0, new MultiKeyframeBasedDoubleInterpolator(0.3));
     }
 
     @Override
     protected List<ValueProviderDescriptor> getValueProvidersInternal() {
-        ValueProviderDescriptor grainAmountProviderDescriptor = ValueProviderDescriptor.builder()
-                .withKeyframeableEffect(grainAmountProvider)
-                .withName("Grain amount")
-                .withGroup("Film grain")
-                .build();
-        ValueProviderDescriptor coloredProviderDescriptor = ValueProviderDescriptor.builder()
-                .withKeyframeableEffect(coloredProvider)
-                .withName("Colored")
-                .withGroup("Film grain")
-                .build();
-        ValueProviderDescriptor colorAmountProviderDescriptor = ValueProviderDescriptor.builder()
-                .withKeyframeableEffect(colorAmountProvider)
-                .withName("Colored amount amount")
-                .withGroup("Film grain")
-                .build();
-        ValueProviderDescriptor grainSizeProviderDescriptor = ValueProviderDescriptor.builder()
-                .withKeyframeableEffect(grainSizeProvider)
-                .withName("Grain size")
-                .withGroup("Film grain")
-                .build();
-        ValueProviderDescriptor lumAmountProviderDescriptor = ValueProviderDescriptor.builder()
-                .withKeyframeableEffect(lumAmountProvider)
-                .withName("Lum amount")
-                .withGroup("Film grain")
-                .build();
-
-        ValueProviderDescriptor kProviderDescriptor = ValueProviderDescriptor.builder()
-                .withKeyframeableEffect(kProvider)
-                .withName("K")
-                .withGroup("Lens distortion")
-                .build();
-        ValueProviderDescriptor kCubeProviderDescriptor = ValueProviderDescriptor.builder()
-                .withKeyframeableEffect(kCubeProvider)
-                .withName("K cube")
-                .withGroup("Lens distortion")
-                .build();
-        ValueProviderDescriptor scaleProviderDescriptor = ValueProviderDescriptor.builder()
-                .withKeyframeableEffect(scaleProvider)
-                .withName("Scale")
-                .withGroup("Lens distortion")
-                .build();
-        ValueProviderDescriptor dispertionProviderDescriptor = ValueProviderDescriptor.builder()
-                .withKeyframeableEffect(dispertionProvider)
-                .withName("Dispersion")
-                .withGroup("Lens distortion")
-                .build();
-        ValueProviderDescriptor blurEnabledProviderDescriptor = ValueProviderDescriptor.builder()
-                .withKeyframeableEffect(blurEnabledProvider)
-                .withName("Enable blur")
-                .withGroup("Lens distortion")
-                .build();
-        ValueProviderDescriptor scratchesProviderDescriptor = ValueProviderDescriptor.builder()
-                .withKeyframeableEffect(scratchesProvider)
-                .withName("Scratches")
-                .withGroup("Film damage")
-                .build();
-        ValueProviderDescriptor burnProviderDescriptor = ValueProviderDescriptor.builder()
-                .withKeyframeableEffect(burnProvider)
-                .withName("Burns")
-                .withGroup("Film damage")
-                .build();
-        return List.of(grainAmountProviderDescriptor, colorAmountProviderDescriptor, coloredProviderDescriptor, grainSizeProviderDescriptor, lumAmountProviderDescriptor,
-                kProviderDescriptor, kCubeProviderDescriptor, scaleProviderDescriptor, dispertionProviderDescriptor, blurEnabledProviderDescriptor, scratchesProviderDescriptor,
-                burnProviderDescriptor);
+        return List.of();
     }
 
     @Override

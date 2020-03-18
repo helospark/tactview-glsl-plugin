@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.helospark.lightdi.annotation.Bean;
 import com.helospark.lightdi.annotation.Configuration;
+import com.helospark.tactview.core.repository.ProjectRepository;
 import com.helospark.tactview.core.timeline.TimelineClipType;
 import com.helospark.tactview.core.timeline.TimelineInterval;
 import com.helospark.tactview.core.timeline.TimelineLength;
@@ -47,6 +48,20 @@ public class GlslEffectFactory {
                 .withRestoreFactory((node, loadMetadata) -> new GlslLensFlareEffect(node, loadMetadata))
                 .withName("GLSL lens flare")
                 .withSupportedEffectId("glsllensflare")
+                .withSupportedClipTypes(List.of(TimelineClipType.VIDEO, TimelineClipType.IMAGE))
+                .withEffectType(TimelineEffectType.VIDEO_EFFECT)
+                .build();
+    }
+
+    @Bean
+    public StandardEffectFactory glslGlitchEffect(GlslUtil glslUtil, RenderBufferProvider renderBufferProvider, VertexBufferProvider vertexBufferProvider, UniformUtil uniformUtil,
+            ProjectRepository projectRepository, TextureLoader textureLoader) {
+        return StandardEffectFactory.builder()
+                .withFactory(request -> new GlslGlitchImageEffect(new TimelineInterval(request.getPosition(), TimelineLength.ofMillis(5000)), glslUtil, renderBufferProvider, vertexBufferProvider,
+                        uniformUtil, projectRepository, textureLoader))
+                .withRestoreFactory((node, loadMetadata) -> new GlslGlitchImageEffect(node, loadMetadata))
+                .withName("GLSL glitch")
+                .withSupportedEffectId("glslglitch")
                 .withSupportedClipTypes(List.of(TimelineClipType.VIDEO, TimelineClipType.IMAGE))
                 .withEffectType(TimelineEffectType.VIDEO_EFFECT)
                 .build();

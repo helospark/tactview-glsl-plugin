@@ -24,12 +24,16 @@ import org.lwjgl.BufferUtils;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.opengl.GL30;
 import org.lwjgl.opengl.GL31;
+import org.slf4j.Logger;
 
+import com.google.common.base.Charsets;
+import com.helospark.glslplugin.shadertoy.ShadertoyShaderProporessor;
 import com.helospark.lightdi.annotation.Component;
 import com.helospark.tactview.core.message.WatchedFileChangedMessage;
 import com.helospark.tactview.core.service.FileChangedWatchService;
 import com.helospark.tactview.core.timeline.TimelineInterval;
 import com.helospark.tactview.core.timeline.TimelinePosition;
+import com.helospark.tactview.core.util.logger.Slf4j;
 import com.helospark.tactview.core.util.messaging.IntervalDirtyMessage;
 import com.helospark.tactview.core.util.messaging.MessagingService;
 
@@ -40,10 +44,15 @@ public class GlslUtil {
 
     private MessagingService messagingService;
     private FileChangedWatchService fileWatchService;
+    private ShadertoyShaderProporessor shadertoyPreprocessor;
 
-    public GlslUtil(MessagingService messagingService, FileChangedWatchService fileWatchService) {
+    @Slf4j
+    private Logger logger;
+
+    public GlslUtil(MessagingService messagingService, FileChangedWatchService fileWatchService, ShadertoyShaderProporessor shadertoyPreprocessor) {
         this.messagingService = messagingService;
         this.fileWatchService = fileWatchService;
+        this.shadertoyPreprocessor = shadertoyPreprocessor;
     }
 
     @PostConstruct
@@ -114,9 +123,30 @@ public class GlslUtil {
         try {
             int shader = GL30.glCreateShader(type);
 
-            String fileToLoad = this.getClass().getResource("/" + resource).getFile();
+            String[] parts = resource.split(":");
+            String protocol = "";
+            String fileName = "";
+            if (parts.length == 2) {
+                protocol = parts[0];
+                fileName = parts[1];
+            } else {
+                fileName = resource;
+            }
+
+            String fileToLoad = this.getClass().getResource("/" + fileName).getFile();
             fileWatchService.requestFileWatch(new File(fileToLoad));
-            ByteBuffer sourceO = ByteBuffer.wrap(new FileInputStream(fileToLoad).readAllBytes());
+            byte[] dataBytes = new FileInputStream(fileToLoad).readAllBytes();
+            String content = new String(dataBytes, Charsets.UTF_8);
+
+            if (protocol.equals("shadertoy")) {
+                content = shadertoyPreprocessor.preprocess(content);
+            } //else {
+              // TODO: introduce chain when needed
+              //}
+
+            logger.debug("Compiling shader:\n" + content);
+
+            ByteBuffer sourceO = ByteBuffer.wrap(content.getBytes());
 
             sourceO.position(0);
 

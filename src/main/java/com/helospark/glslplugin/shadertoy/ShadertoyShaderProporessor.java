@@ -24,7 +24,12 @@ public class ShadertoyShaderProporessor {
                 + "\n"
                 + "vec4 texture(sampler2D sampler, vec2 coordinate) {\n"
                 + "  return texture2D(sampler, coordinate);\n"
-                + "}\n\n";
+                + "}\n"
+                + "\n"
+                + "vec4 texture(sampler2D sampler, vec2 coordinate, float bias) {\n"
+                + "  return texture2D(sampler, coordinate, bias);\n"
+                + "}\n"
+                + "\n";
 
         String mainMethod = "\n\nvoid main(void)\n" +
                 "{\n" +

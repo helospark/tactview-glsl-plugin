@@ -29,6 +29,10 @@ import com.helospark.tactview.core.timeline.effect.interpolation.provider.ValueL
 // https://www.shadertoy.com/view/lsfGD2
 // https://www.shadertoy.com/view/4lB3Dc
 // https://www.shadertoy.com/view/Md2GDw
+// https://www.shadertoy.com/view/4t23Rc
+// https://www.shadertoy.com/view/XtfXR8
+// https://www.shadertoy.com/view/MtXBDs
+// https://www.shadertoy.com/view/ldXGW4
 public class GlslGlitchImageEffect extends AbstractRegularGlslStatelessVideoEffect {
     private UniformUtil uniformUtil;
     private ProjectRepository projectRepository;
@@ -64,10 +68,14 @@ public class GlslGlitchImageEffect extends AbstractRegularGlslStatelessVideoEffe
                 new ValueListElement("shadertoy:shaders/glitch/digitalglitch.fs", "Digital glitch"),
                 new ValueListElement("shadertoy:shaders/glitch/oldtv.fs", "Old TV"),
                 new ValueListElement("shadertoy:shaders/glitch/oldtv2.fs", "Old TV 2"),
+                new ValueListElement("shadertoy:shaders/glitch/oldtv3.fs", "Old TV 3"),
+                new ValueListElement("shadertoy:shaders/glitch/oldtv4.fs", "Old TV 4"),
                 new ValueListElement("shadertoy:shaders/glitch/vcrtape.fs", "VCR tape"),
                 new ValueListElement("shadertoy:shaders/glitch/vhs.fs", "VHS"),
                 new ValueListElement("shadertoy:shaders/glitch/vhspaused.fs", "VHS paused"),
-                new ValueListElement("shadertoy:shaders/glitch/mpeg_artifacts.fs", "MPEG artifact"));
+                new ValueListElement("shadertoy:shaders/glitch/mpeg_artifacts.fs", "MPEG artifact"),
+                new ValueListElement("shadertoy:shaders/glitch/rgbshiftglitch.fs", "RGB shift glitch"),
+                new ValueListElement("shadertoy:shaders/glitch/rgbshiftglitch2.fs", "RGB shift glitch 2"));
         glitchTypeProvider = new ValueListProvider<>(glitchShaders, new StepStringInterpolator("shadertoy:shaders/glitch/digitalglitch.fs"));
     }
 
@@ -123,7 +131,7 @@ public class GlslGlitchImageEffect extends AbstractRegularGlslStatelessVideoEffe
 
             uniformLocation = GL31.glGetUniformLocation(programId, "iChannelResolution");
             GL31.glUniform3fv(uniformLocation, new float[]{256, 256, 0});
-        } else if (value.getId().endsWith("mpeg_artifacts.fs")) {
+        } else if (value.getId().endsWith("mpeg_artifacts.fs") || value.getId().endsWith("rgbshiftglitch.fs")) {
             GL30.glActiveTexture(GL30.GL_TEXTURE2);
             int texture = textureLoader.loadTexture("shaders/glitch/texture/rgbnoise64.png");
             GL30.glBindTexture(GL30.GL_TEXTURE_2D, texture);

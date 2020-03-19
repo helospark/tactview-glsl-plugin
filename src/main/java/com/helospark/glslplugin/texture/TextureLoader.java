@@ -1,4 +1,4 @@
-package com.helospark.glslplugin;
+package com.helospark.glslplugin.texture;
 
 import static org.lwjgl.opengl.GL11.GL_NEAREST;
 import static org.lwjgl.opengl.GL11.GL_RGBA;
@@ -25,7 +25,7 @@ import com.helospark.tactview.core.util.BufferedImageToClipFrameResultConverter;
 
 @Component
 public class TextureLoader {
-    private Map<String, Integer> textureCache = new HashMap<>();
+    private Map<String, TextureData> textureCache = new HashMap<>();
 
     private BufferedImageToClipFrameResultConverter converter;
 
@@ -33,8 +33,8 @@ public class TextureLoader {
         this.converter = converter;
     }
 
-    public int loadTexture(String path) {
-        Integer data = textureCache.get(path);
+    public TextureData loadTexture(String path) {
+        TextureData data = textureCache.get(path);
         if (data == null) {
             data = loadTextureInternal(path);
             textureCache.put(path, data);
@@ -42,7 +42,7 @@ public class TextureLoader {
         return data;
     }
 
-    private int loadTextureInternal(String path) {
+    private TextureData loadTextureInternal(String path) {
         try {
             int tex = glGenTextures();
             glBindTexture(GL_TEXTURE_2D, tex);
@@ -58,7 +58,11 @@ public class TextureLoader {
             clipImage.getBuffer().position(0);
             glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, image.getWidth(), image.getHeight(), 0, GL_RGBA, GL_UNSIGNED_BYTE, clipImage.getBuffer());
 
-            return tex;
+            return TextureData.builder()
+                    .withId(tex)
+                    .withWidth(image.getWidth())
+                    .withHeight(image.getHeight())
+                    .build();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

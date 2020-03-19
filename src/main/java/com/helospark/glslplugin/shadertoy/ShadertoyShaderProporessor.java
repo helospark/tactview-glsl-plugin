@@ -6,7 +6,9 @@ import com.helospark.lightdi.annotation.Component;
 public class ShadertoyShaderProporessor {
 
     public String preprocess(String content) {
-        String uniforms = "uniform vec3 iResolution;\n" +
+        String uniforms = "#version 130\n"
+                + "\n"
+                + "uniform vec3 iResolution;\n" +
                 "uniform float iTime;\n" +
                 "uniform float iTimeDelta;\n" +
                 "uniform float iFrame;\n" +

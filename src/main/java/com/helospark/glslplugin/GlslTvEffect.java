@@ -28,45 +28,49 @@ import com.helospark.tactview.core.timeline.effect.interpolation.provider.ValueL
 // https://www.shadertoy.com/view/XtfXR8
 // https://www.shadertoy.com/view/MtXBDs
 // https://www.shadertoy.com/view/ldXGW4
-public class GlslGlitchImageEffect extends AbstractRegularGlslStatelessVideoEffect {
+
+// https://www.shadertoy.com/view/Ms23DR
+public class GlslTvEffect extends AbstractRegularGlslStatelessVideoEffect {
     private ShadertoyHelpers shadertoyHelpers;
 
-    private ValueListProvider<ValueListElement> glitchTypeProvider;
+    private ValueListProvider<ValueListElement> typeProvider;
 
-    public GlslGlitchImageEffect(TimelineInterval interval, GlslUtil glslUtil, RenderBufferProvider renderBufferProvider, VertexBufferProvider vertexBufferProvider,
+    public GlslTvEffect(TimelineInterval interval, GlslUtil glslUtil, RenderBufferProvider renderBufferProvider, VertexBufferProvider vertexBufferProvider,
             ShadertoyHelpers shadertoyHelpers) {
         super(interval, renderBufferProvider, vertexBufferProvider, glslUtil);
 
         this.shadertoyHelpers = shadertoyHelpers;
 
         this.vertexShader = "shaders/common/common.vs";
-        this.fragmentShader = "shadertoy:shaders/glitch/digitalglitch.fs";
+        this.fragmentShader = "shadertoy:shaders/glitch/software_glitch.fs";
     }
 
-    public GlslGlitchImageEffect(JsonNode node, LoadMetadata loadMetadata) {
+    public GlslTvEffect(JsonNode node, LoadMetadata loadMetadata) {
         super(node, loadMetadata);
     }
 
-    public GlslGlitchImageEffect(StatelessVideoEffect effect, CloneRequestMetadata cloneRequestMetadata) {
+    public GlslTvEffect(StatelessVideoEffect effect, CloneRequestMetadata cloneRequestMetadata) {
         super(effect, cloneRequestMetadata);
     }
 
     @Override
     protected void initializeValueProviderInternal() {
         List<ValueListElement> glitchShaders = List.of(
-                new ValueListElement("shadertoy:shaders/glitch/glitchpixel.fs", "Heavy TV glitch"),
-                new ValueListElement("shadertoy:shaders/glitch/digitalglitch.fs", "Digital glitch"),
-                new ValueListElement("shadertoy:shaders/glitch/vhspaused.fs", "VHS paused"),
-                new ValueListElement("shadertoy:shaders/glitch/mpeg_artifacts.fs", "MPEG artifact"),
-                new ValueListElement("shadertoy:shaders/glitch/rgbshiftglitch.fs", "RGB shift glitch"),
-                new ValueListElement("shadertoy:shaders/glitch/rgbshiftglitch2.fs", "RGB shift glitch 2"),
-                new ValueListElement("shadertoy:shaders/glitch/interlaced_glitch.fs", "Interlaced glitch"));
-        glitchTypeProvider = new ValueListProvider<>(glitchShaders, new StepStringInterpolator("shadertoy:shaders/glitch/digitalglitch.fs"));
+                new ValueListElement("shadertoy:shaders/tv/software_glitch.fs", "Bad analog"),
+                new ValueListElement("shadertoy:shaders/tv/oldtv.fs", "Old TV"),
+                new ValueListElement("shadertoy:shaders/tv/oldtv2.fs", "Old TV 2"),
+                new ValueListElement("shadertoy:shaders/tv/oldtv3.fs", "Old TV 3"),
+                new ValueListElement("shadertoy:shaders/tv/oldtv4.fs", "Old TV 4"),
+                new ValueListElement("shadertoy:shaders/tv/vcrtape.fs", "VCR tape"),
+                new ValueListElement("shadertoy:shaders/tv/vhs.fs", "VHS"),
+                new ValueListElement("shadertoy:shaders/tv/vhspaused.fs", "VHS paused"),
+                new ValueListElement("shadertoy:shaders/tv/mattiascrt.fs", "CRT closeup"));
+        typeProvider = new ValueListProvider<>(glitchShaders, new StepStringInterpolator("shadertoy:shaders/glitch/digitalglitch.fs"));
     }
 
     @Override
     protected void initRender(StatelessEffectRequest request) {
-        ValueListElement value = glitchTypeProvider.getValueAt(request.getEffectPosition());
+        ValueListElement value = typeProvider.getValueAt(request.getEffectPosition());
 
         this.fragmentShader = value.getId();
     }
@@ -74,7 +78,7 @@ public class GlslGlitchImageEffect extends AbstractRegularGlslStatelessVideoEffe
     @Override
     protected List<ValueProviderDescriptor> getValueProvidersInternal() {
         ValueProviderDescriptor glitchTypeProviderDescriptor = ValueProviderDescriptor.builder()
-                .withKeyframeableEffect(glitchTypeProvider)
+                .withKeyframeableEffect(typeProvider)
                 .withName("Type")
                 .build();
         return List.of(glitchTypeProviderDescriptor);
@@ -84,11 +88,9 @@ public class GlslGlitchImageEffect extends AbstractRegularGlslStatelessVideoEffe
     protected void bindUniforms(int programId, StatelessEffectRequest request) {
         shadertoyHelpers.attachCommonShadertoyUniforms(request, programId);
 
-        ValueListElement value = glitchTypeProvider.getValueAt(request.getEffectPosition());
-        if (value.getId().endsWith("digitalglitch.fs")) {
-            shadertoyHelpers.attachTextures(programId, "shaders/glitch/texture/noise64.png");
-        } else if (value.getId().endsWith("mpeg_artifacts.fs") || value.getId().endsWith("rgbshiftglitch.fs")) {
-            shadertoyHelpers.attachTextures(programId, "shaders/glitch/texture/rgbnoise64.png");
+        ValueListElement value = typeProvider.getValueAt(request.getEffectPosition());
+        if (value.getId().endsWith("vcrtape.fs")) {
+            shadertoyHelpers.attachTextures(programId, "shaders/glitch/texture/rgbnoise.png");
         }
     }
 

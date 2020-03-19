@@ -41,4 +41,5 @@ public class UniformUtil {
         Integer value = provider.getValueAt(position);
         bindIntegerToUniform(programId, value, name);
     }
+
 }

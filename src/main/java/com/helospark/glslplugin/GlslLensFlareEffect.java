@@ -25,6 +25,7 @@ import org.lwjgl.opengl.GL31;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.helospark.glslplugin.RenderBufferProvider.RenderBufferData;
+import com.helospark.glslplugin.texture.TextureLoader;
 import com.helospark.tactview.core.clone.CloneRequestMetadata;
 import com.helospark.tactview.core.save.LoadMetadata;
 import com.helospark.tactview.core.timeline.StatelessEffect;
@@ -139,7 +140,7 @@ public class GlslLensFlareEffect extends StatelessVideoEffect {
             uniformUtil.bindIntegerToUniform(programId, 0, "tDiffuse");
 
             GL31.glActiveTexture(GL31.GL_TEXTURE1);
-            int lensColorTexture = textureLoader.loadTexture("shaders/lensflare/data/lenscolor.png");
+            int lensColorTexture = textureLoader.loadTexture("shaders/lensflare/data/lenscolor.png").getId();
             glBindTexture(GL31.GL_TEXTURE_2D, lensColorTexture);
 
             uniformUtil.bindDoubleProviderToUniform(programId, ghostDispersalProvider, position, "uGhostDispersal");
@@ -171,11 +172,11 @@ public class GlslLensFlareEffect extends StatelessVideoEffect {
             uniformUtil.bindIntegerToUniform(programId, 1, "tLensColor");
 
             GL31.glActiveTexture(GL31.GL_TEXTURE2);
-            glBindTexture(GL_TEXTURE_2D, textureLoader.loadTexture("shaders/lensflare/data/lensdirt.png"));
+            glBindTexture(GL_TEXTURE_2D, textureLoader.loadTexture("shaders/lensflare/data/lensdirt.png").getId());
             uniformUtil.bindIntegerToUniform(programId, 2, "tLensDirt");
 
             GL31.glActiveTexture(GL31.GL_TEXTURE3);
-            glBindTexture(GL_TEXTURE_2D, textureLoader.loadTexture("shaders/lensflare/data/lensstar.png"));
+            glBindTexture(GL_TEXTURE_2D, textureLoader.loadTexture("shaders/lensflare/data/lensstar.png").getId());
             uniformUtil.bindIntegerToUniform(programId, 3, "tLensStar");
 
             uniformUtil.bindDoubleProviderToUniform(programId, artifactScaleProvider, position, "artefactScale");

@@ -1,9 +1,13 @@
-package com.helospark.glslplugin;
+package com.helospark.glslplugin.effects;
 
 import java.util.List;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.helospark.glslplugin.AbstractRegularGlslStatelessVideoEffect;
 import com.helospark.glslplugin.shadertoy.ShadertoyHelpers;
+import com.helospark.glslplugin.util.GlslUtil;
+import com.helospark.glslplugin.util.RenderBufferProvider;
+import com.helospark.glslplugin.util.VertexBufferProvider;
 import com.helospark.tactview.core.clone.CloneRequestMetadata;
 import com.helospark.tactview.core.save.LoadMetadata;
 import com.helospark.tactview.core.timeline.StatelessEffect;
@@ -14,6 +18,7 @@ import com.helospark.tactview.core.timeline.effect.interpolation.ValueProviderDe
 import com.helospark.tactview.core.timeline.effect.interpolation.interpolator.StepStringInterpolator;
 import com.helospark.tactview.core.timeline.effect.interpolation.provider.ValueListElement;
 import com.helospark.tactview.core.timeline.effect.interpolation.provider.ValueListProvider;
+import com.helospark.tactview.core.util.ReflectionUtil;
 
 // https://www.shadertoy.com/view/MtfSz2
 // https://www.shadertoy.com/view/Md3SRM
@@ -51,6 +56,8 @@ public class GlslTvEffect extends AbstractRegularGlslStatelessVideoEffect {
 
     public GlslTvEffect(StatelessVideoEffect effect, CloneRequestMetadata cloneRequestMetadata) {
         super(effect, cloneRequestMetadata);
+
+        ReflectionUtil.copyOrCloneFieldFromTo(effect, this);
     }
 
     @Override
@@ -101,7 +108,7 @@ public class GlslTvEffect extends AbstractRegularGlslStatelessVideoEffect {
 
     @Override
     public StatelessEffect cloneEffect(CloneRequestMetadata cloneRequestMetadata) {
-        return null;
+        return new GlslTvEffect(this, cloneRequestMetadata);
     }
 
 }

@@ -1,10 +1,15 @@
-package com.helospark.glslplugin;
+package com.helospark.glslplugin.effects;
 
 import java.util.List;
 
 import org.lwjgl.opengl.GL31;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.helospark.glslplugin.AbstractRegularGlslStatelessVideoEffect;
+import com.helospark.glslplugin.util.GlslUtil;
+import com.helospark.glslplugin.util.RenderBufferProvider;
+import com.helospark.glslplugin.util.UniformUtil;
+import com.helospark.glslplugin.util.VertexBufferProvider;
 import com.helospark.tactview.core.clone.CloneRequestMetadata;
 import com.helospark.tactview.core.save.LoadMetadata;
 import com.helospark.tactview.core.timeline.StatelessEffect;
@@ -15,6 +20,7 @@ import com.helospark.tactview.core.timeline.effect.StatelessEffectRequest;
 import com.helospark.tactview.core.timeline.effect.interpolation.ValueProviderDescriptor;
 import com.helospark.tactview.core.timeline.effect.interpolation.provider.BooleanProvider;
 import com.helospark.tactview.core.timeline.effect.interpolation.provider.DoubleProvider;
+import com.helospark.tactview.core.util.ReflectionUtil;
 
 // https://github.com/mattdesl/filmic-gl
 public class GlslFilmEffect extends AbstractRegularGlslStatelessVideoEffect {
@@ -49,6 +55,8 @@ public class GlslFilmEffect extends AbstractRegularGlslStatelessVideoEffect {
 
     public GlslFilmEffect(StatelessVideoEffect effect, CloneRequestMetadata cloneRequestMetadata) {
         super(effect, cloneRequestMetadata);
+
+        ReflectionUtil.copyOrCloneFieldFromTo(effect, this);
     }
 
     @Override
@@ -84,7 +92,7 @@ public class GlslFilmEffect extends AbstractRegularGlslStatelessVideoEffect {
 
     @Override
     public StatelessEffect cloneEffect(CloneRequestMetadata cloneRequestMetadata) {
-        return null;
+        return new GlslFilmEffect(this, cloneRequestMetadata);
     }
 
 }

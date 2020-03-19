@@ -1,4 +1,4 @@
-package com.helospark.glslplugin;
+package com.helospark.glslplugin.util;
 
 import static org.lwjgl.opengl.GL20.GL_FRAGMENT_SHADER;
 import static org.lwjgl.opengl.GL20.GL_LINK_STATUS;
@@ -27,6 +27,7 @@ import org.lwjgl.opengl.GL31;
 import org.slf4j.Logger;
 
 import com.google.common.base.Charsets;
+import com.helospark.glslplugin.GlslPlatform;
 import com.helospark.glslplugin.shadertoy.ShadertoyShaderProporessor;
 import com.helospark.lightdi.annotation.Component;
 import com.helospark.tactview.core.message.WatchedFileChangedMessage;

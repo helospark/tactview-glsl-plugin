@@ -1,4 +1,4 @@
-package com.helospark.glslplugin;
+package com.helospark.glslplugin.util;
 
 import static org.lwjgl.opengl.EXTFramebufferObject.GL_FRAMEBUFFER_COMPLETE_EXT;
 import static org.lwjgl.opengl.EXTFramebufferObject.GL_FRAMEBUFFER_EXT;
@@ -90,10 +90,6 @@ public class RenderBufferProvider {
 
     private String createCacheKey(int width, int height) {
         return "" + width + "x" + height;
-    }
-
-    public static class RenderBufferData {
-        int fbo, rbo;
     }
 
 }

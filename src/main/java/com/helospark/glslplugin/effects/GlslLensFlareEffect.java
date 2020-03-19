@@ -1,6 +1,5 @@
-package com.helospark.glslplugin;
+package com.helospark.glslplugin.effects;
 
-import static org.lwjgl.opengl.EXTFramebufferObject.glBindFramebufferEXT;
 import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
 import static org.lwjgl.opengl.GL11.GL_DEPTH_TEST;
 import static org.lwjgl.opengl.GL11.GL_RGBA;
@@ -24,8 +23,13 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL31;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.helospark.glslplugin.RenderBufferProvider.RenderBufferData;
+import com.helospark.glslplugin.GlslPlatform;
 import com.helospark.glslplugin.texture.TextureLoader;
+import com.helospark.glslplugin.util.GlslUtil;
+import com.helospark.glslplugin.util.RenderBufferData;
+import com.helospark.glslplugin.util.RenderBufferProvider;
+import com.helospark.glslplugin.util.UniformUtil;
+import com.helospark.glslplugin.util.VertexBufferProvider;
 import com.helospark.tactview.core.clone.CloneRequestMetadata;
 import com.helospark.tactview.core.save.LoadMetadata;
 import com.helospark.tactview.core.timeline.StatelessEffect;
@@ -39,6 +43,7 @@ import com.helospark.tactview.core.timeline.effect.interpolation.provider.Double
 import com.helospark.tactview.core.timeline.effect.interpolation.provider.IntegerProvider;
 import com.helospark.tactview.core.timeline.image.ClipImage;
 import com.helospark.tactview.core.timeline.image.ReadOnlyClipImage;
+import com.helospark.tactview.core.util.ReflectionUtil;
 
 // https://john-chapman-graphics.blogspot.com/2013/02/pseudo-lens-flare.html
 // https://github.com/jeromeetienne/threex.sslensflare
@@ -88,6 +93,8 @@ public class GlslLensFlareEffect extends StatelessVideoEffect {
 
     public GlslLensFlareEffect(StatelessVideoEffect effect, CloneRequestMetadata cloneRequestMetadata) {
         super(effect, cloneRequestMetadata);
+
+        ReflectionUtil.copyOrCloneFieldFromTo(effect, this);
     }
 
     @Override
@@ -107,7 +114,7 @@ public class GlslLensFlareEffect extends StatelessVideoEffect {
             glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, downSampledWidth, downSampledHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
 
             Integer renderbuffer = renderBufferProvider.getFrameBufferAttachedTexture(firstPhaseOutputTexture, GL31.GL_COLOR_ATTACHMENT1);
-            glBindFramebufferEXT(GL31.GL_FRAMEBUFFER, renderbuffer);
+            GL31.glBindFramebuffer(GL31.GL_FRAMEBUFFER, renderbuffer);
 
             GL11.glViewport(0, 0, width, height);
 
@@ -131,7 +138,7 @@ public class GlslLensFlareEffect extends StatelessVideoEffect {
             glBindTexture(GL31.GL_TEXTURE_2D, secondPhaseOutputTexture);
             glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
             Integer renderbuffer2 = renderBufferProvider.getFrameBufferAttachedTexture(secondPhaseOutputTexture, GL31.GL_COLOR_ATTACHMENT1);
-            glBindFramebufferEXT(GL31.GL_FRAMEBUFFER, renderbuffer2);
+            GL31.glBindFramebuffer(GL31.GL_FRAMEBUFFER, renderbuffer2);
 
             GL11.glViewport(0, 0, width, height);
 
@@ -159,7 +166,7 @@ public class GlslLensFlareEffect extends StatelessVideoEffect {
             GL31.glUseProgram(programId);
 
             RenderBufferData renderbufferData = renderBufferProvider.getRenderbuffer(width, height);
-            glBindFramebufferEXT(GL31.GL_FRAMEBUFFER, renderbufferData.fbo);
+            GL31.glBindFramebuffer(GL31.GL_FRAMEBUFFER, renderbufferData.fbo);
 
             GL11.glViewport(0, 0, width, height);
 
@@ -286,7 +293,7 @@ public class GlslLensFlareEffect extends StatelessVideoEffect {
 
     @Override
     public StatelessEffect cloneEffect(CloneRequestMetadata cloneRequestMetadata) {
-        return null;
+        return new GlslLensFlareEffect(this, cloneRequestMetadata);
     }
 
     private int createTexture() {

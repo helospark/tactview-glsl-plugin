@@ -1,9 +1,13 @@
-package com.helospark.glslplugin;
+package com.helospark.glslplugin.effects;
 
 import java.util.List;
 
 import com.helospark.glslplugin.shadertoy.ShadertoyHelpers;
 import com.helospark.glslplugin.texture.TextureLoader;
+import com.helospark.glslplugin.util.GlslUtil;
+import com.helospark.glslplugin.util.RenderBufferProvider;
+import com.helospark.glslplugin.util.UniformUtil;
+import com.helospark.glslplugin.util.VertexBufferProvider;
 import com.helospark.lightdi.annotation.Bean;
 import com.helospark.lightdi.annotation.Configuration;
 import com.helospark.tactview.core.timeline.TimelineClipType;
@@ -20,7 +24,7 @@ public class GlslEffectFactory {
         return StandardEffectFactory.builder()
                 .withFactory(
                         request -> new GlslFilmEffect(new TimelineInterval(request.getPosition(), TimelineLength.ofMillis(5000)), glslUtil, renderBufferProvider, vertexBufferProvider, uniformUtil))
-                .withRestoreFactory((node, loadMetadata) -> new GlslDarkenImageEffect(node, loadMetadata))
+                .withRestoreFactory((node, loadMetadata) -> new GlslFilmEffect(node, loadMetadata))
                 .withName("Old film")
                 .withSupportedEffectId("glslfilm")
                 .withSupportedClipTypes(List.of(TimelineClipType.VIDEO, TimelineClipType.IMAGE))

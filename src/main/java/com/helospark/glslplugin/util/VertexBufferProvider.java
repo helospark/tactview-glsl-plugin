@@ -1,4 +1,4 @@
-package com.helospark.glslplugin;
+package com.helospark.glslplugin.util;
 
 import static org.lwjgl.opengl.GL11.GL_FLOAT;
 import static org.lwjgl.opengl.GL11.GL_TRIANGLES;

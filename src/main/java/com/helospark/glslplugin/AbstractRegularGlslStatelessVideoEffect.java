@@ -31,7 +31,10 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL31;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.helospark.glslplugin.RenderBufferProvider.RenderBufferData;
+import com.helospark.glslplugin.util.GlslUtil;
+import com.helospark.glslplugin.util.RenderBufferData;
+import com.helospark.glslplugin.util.RenderBufferProvider;
+import com.helospark.glslplugin.util.VertexBufferProvider;
 import com.helospark.tactview.core.clone.CloneRequestMetadata;
 import com.helospark.tactview.core.save.LoadMetadata;
 import com.helospark.tactview.core.timeline.StatelessEffect;

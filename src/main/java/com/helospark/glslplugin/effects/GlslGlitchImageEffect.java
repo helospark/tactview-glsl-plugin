@@ -1,9 +1,13 @@
-package com.helospark.glslplugin;
+package com.helospark.glslplugin.effects;
 
 import java.util.List;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.helospark.glslplugin.AbstractRegularGlslStatelessVideoEffect;
 import com.helospark.glslplugin.shadertoy.ShadertoyHelpers;
+import com.helospark.glslplugin.util.GlslUtil;
+import com.helospark.glslplugin.util.RenderBufferProvider;
+import com.helospark.glslplugin.util.VertexBufferProvider;
 import com.helospark.tactview.core.clone.CloneRequestMetadata;
 import com.helospark.tactview.core.save.LoadMetadata;
 import com.helospark.tactview.core.timeline.StatelessEffect;
@@ -14,41 +18,57 @@ import com.helospark.tactview.core.timeline.effect.interpolation.ValueProviderDe
 import com.helospark.tactview.core.timeline.effect.interpolation.interpolator.StepStringInterpolator;
 import com.helospark.tactview.core.timeline.effect.interpolation.provider.ValueListElement;
 import com.helospark.tactview.core.timeline.effect.interpolation.provider.ValueListProvider;
+import com.helospark.tactview.core.util.ReflectionUtil;
 
-// https://www.shadertoy.com/view/ldSBWW
-// https://www.shadertoy.com/view/XdBBzh
-// https://www.shadertoy.com/view/ltffzl
-public class GlslRainEffect extends AbstractRegularGlslStatelessVideoEffect {
+// https://www.shadertoy.com/view/MtfSz2
+// https://www.shadertoy.com/view/Md3SRM
+// https://www.shadertoy.com/view/4l2SDh
+// https://www.shadertoy.com/view/XtBXDt
+// https://www.shadertoy.com/view/Mt2XDV
+// https://www.shadertoy.com/view/4syfRt
+// https://www.shadertoy.com/view/lsfGD2
+// https://www.shadertoy.com/view/4lB3Dc
+// https://www.shadertoy.com/view/Md2GDw
+// https://www.shadertoy.com/view/4t23Rc
+// https://www.shadertoy.com/view/XtfXR8
+// https://www.shadertoy.com/view/MtXBDs
+// https://www.shadertoy.com/view/ldXGW4
+public class GlslGlitchImageEffect extends AbstractRegularGlslStatelessVideoEffect {
     private ShadertoyHelpers shadertoyHelpers;
 
     private ValueListProvider<ValueListElement> glitchTypeProvider;
 
-    public GlslRainEffect(TimelineInterval interval, GlslUtil glslUtil, RenderBufferProvider renderBufferProvider, VertexBufferProvider vertexBufferProvider,
+    public GlslGlitchImageEffect(TimelineInterval interval, GlslUtil glslUtil, RenderBufferProvider renderBufferProvider, VertexBufferProvider vertexBufferProvider,
             ShadertoyHelpers shadertoyHelpers) {
         super(interval, renderBufferProvider, vertexBufferProvider, glslUtil);
 
         this.shadertoyHelpers = shadertoyHelpers;
 
         this.vertexShader = "shaders/common/common.vs";
-        this.fragmentShader = "shadertoy:shaders/rain/raindrops_flowing.fs";
+        this.fragmentShader = "shadertoy:shaders/glitch/digitalglitch.fs";
     }
 
-    public GlslRainEffect(JsonNode node, LoadMetadata loadMetadata) {
+    public GlslGlitchImageEffect(JsonNode node, LoadMetadata loadMetadata) {
         super(node, loadMetadata);
     }
 
-    public GlslRainEffect(StatelessVideoEffect effect, CloneRequestMetadata cloneRequestMetadata) {
+    public GlslGlitchImageEffect(StatelessVideoEffect effect, CloneRequestMetadata cloneRequestMetadata) {
         super(effect, cloneRequestMetadata);
+
+        ReflectionUtil.copyOrCloneFieldFromTo(effect, this);
     }
 
     @Override
     protected void initializeValueProviderInternal() {
         List<ValueListElement> glitchShaders = List.of(
-                new ValueListElement("shadertoy:shaders/rain/foggy_window_rain.fs", "Foggy window rain"),
-                new ValueListElement("shadertoy:shaders/rain/raindrops_flowing.fs", "Raindrops flowing"),
-                new ValueListElement("shadertoy:shaders/rain/raining_to_water.fs", "Raining to water"),
-                new ValueListElement("shadertoy:shaders/rain/raindrops_on_window.fs", "Raindrop on window"));
-        glitchTypeProvider = new ValueListProvider<>(glitchShaders, new StepStringInterpolator("shadertoy:shaders/rain/raindrops_flowing.fs"));
+                new ValueListElement("shadertoy:shaders/glitch/glitchpixel.fs", "Heavy TV glitch"),
+                new ValueListElement("shadertoy:shaders/glitch/digitalglitch.fs", "Digital glitch"),
+                new ValueListElement("shadertoy:shaders/glitch/vhspaused.fs", "VHS paused"),
+                new ValueListElement("shadertoy:shaders/glitch/mpeg_artifacts.fs", "MPEG artifact"),
+                new ValueListElement("shadertoy:shaders/glitch/rgbshiftglitch.fs", "RGB shift glitch"),
+                new ValueListElement("shadertoy:shaders/glitch/rgbshiftglitch2.fs", "RGB shift glitch 2"),
+                new ValueListElement("shadertoy:shaders/glitch/interlaced_glitch.fs", "Interlaced glitch"));
+        glitchTypeProvider = new ValueListProvider<>(glitchShaders, new StepStringInterpolator("shadertoy:shaders/glitch/digitalglitch.fs"));
     }
 
     @Override
@@ -72,8 +92,10 @@ public class GlslRainEffect extends AbstractRegularGlslStatelessVideoEffect {
         shadertoyHelpers.attachCommonShadertoyUniforms(request, programId);
 
         ValueListElement value = glitchTypeProvider.getValueAt(request.getEffectPosition());
-        if (value.getId().endsWith("raindrops_on_window.fs")) {
+        if (value.getId().endsWith("digitalglitch.fs")) {
             shadertoyHelpers.attachTextures(programId, "shaders/glitch/texture/noise64.png");
+        } else if (value.getId().endsWith("mpeg_artifacts.fs") || value.getId().endsWith("rgbshiftglitch.fs")) {
+            shadertoyHelpers.attachTextures(programId, "shaders/glitch/texture/rgbnoise64.png");
         }
     }
 
@@ -84,7 +106,7 @@ public class GlslRainEffect extends AbstractRegularGlslStatelessVideoEffect {
 
     @Override
     public StatelessEffect cloneEffect(CloneRequestMetadata cloneRequestMetadata) {
-        return null;
+        return new GlslGlitchImageEffect(this, cloneRequestMetadata);
     }
 
 }

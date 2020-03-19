@@ -7,9 +7,9 @@ import java.util.List;
 import org.lwjgl.opengl.GL30;
 import org.lwjgl.opengl.GL31;
 
-import com.helospark.glslplugin.UniformUtil;
 import com.helospark.glslplugin.texture.TextureData;
 import com.helospark.glslplugin.texture.TextureLoader;
+import com.helospark.glslplugin.util.UniformUtil;
 import com.helospark.lightdi.annotation.Component;
 import com.helospark.tactview.core.repository.ProjectRepository;
 import com.helospark.tactview.core.timeline.TimelinePosition;

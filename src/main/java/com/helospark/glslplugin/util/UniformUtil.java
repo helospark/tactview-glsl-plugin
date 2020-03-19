@@ -1,4 +1,4 @@
-package com.helospark.glslplugin;
+package com.helospark.glslplugin.util;
 
 import org.lwjgl.opengl.GL31;
 

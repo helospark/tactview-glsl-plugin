@@ -4,9 +4,13 @@ import org.lwjgl.opengl.GL31;
 
 import com.helospark.lightdi.annotation.Component;
 import com.helospark.tactview.core.timeline.TimelinePosition;
+import com.helospark.tactview.core.timeline.effect.interpolation.pojo.Color;
+import com.helospark.tactview.core.timeline.effect.interpolation.pojo.Point;
 import com.helospark.tactview.core.timeline.effect.interpolation.provider.BooleanProvider;
+import com.helospark.tactview.core.timeline.effect.interpolation.provider.ColorProvider;
 import com.helospark.tactview.core.timeline.effect.interpolation.provider.DoubleProvider;
 import com.helospark.tactview.core.timeline.effect.interpolation.provider.IntegerProvider;
+import com.helospark.tactview.core.timeline.effect.interpolation.provider.PointProvider;
 
 @Component
 public class UniformUtil {
@@ -40,6 +44,18 @@ public class UniformUtil {
     public void bindIntegerProviderToUniform(int programId, IntegerProvider provider, TimelinePosition position, String name) {
         Integer value = provider.getValueAt(position);
         bindIntegerToUniform(programId, value, name);
+    }
+
+    public void bindColorProviderToUniform(int programId, ColorProvider provider, TimelinePosition position, String name) {
+        Color value = provider.getValueAt(position);
+        int uniformLocation = GL31.glGetUniformLocation(programId, name);
+        GL31.glUniform3f(uniformLocation, (float) value.red, (float) value.green, (float) value.blue);
+    }
+
+    public void bindPointProviderToUniform(int programId, PointProvider provider, TimelinePosition position, String name) {
+        Point value = provider.getValueAt(position);
+        int uniformLocation = GL31.glGetUniformLocation(programId, name);
+        GL31.glUniform2f(uniformLocation, (float) value.x, (float) value.y);
     }
 
 }

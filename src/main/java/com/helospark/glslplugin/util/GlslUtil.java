@@ -1,5 +1,23 @@
 package com.helospark.glslplugin.util;
 
+import static org.lwjgl.opengl.EXTFramebufferObject.GL_FRAMEBUFFER_EXT;
+import static org.lwjgl.opengl.EXTFramebufferObject.GL_RENDERBUFFER_EXT;
+import static org.lwjgl.opengl.EXTFramebufferObject.glBindFramebufferEXT;
+import static org.lwjgl.opengl.EXTFramebufferObject.glBindRenderbufferEXT;
+import static org.lwjgl.opengl.EXTFramebufferObject.glFramebufferRenderbufferEXT;
+import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
+import static org.lwjgl.opengl.GL11.GL_NEAREST;
+import static org.lwjgl.opengl.GL11.GL_RGBA;
+import static org.lwjgl.opengl.GL11.GL_RGBA8;
+import static org.lwjgl.opengl.GL11.GL_TEXTURE_2D;
+import static org.lwjgl.opengl.GL11.GL_TEXTURE_MAG_FILTER;
+import static org.lwjgl.opengl.GL11.GL_TEXTURE_MIN_FILTER;
+import static org.lwjgl.opengl.GL11.GL_UNSIGNED_BYTE;
+import static org.lwjgl.opengl.GL11.glBindTexture;
+import static org.lwjgl.opengl.GL11.glClear;
+import static org.lwjgl.opengl.GL11.glGenTextures;
+import static org.lwjgl.opengl.GL11.glTexImage2D;
+import static org.lwjgl.opengl.GL11.glTexParameteri;
 import static org.lwjgl.opengl.GL20.GL_FRAGMENT_SHADER;
 import static org.lwjgl.opengl.GL20.GL_LINK_STATUS;
 import static org.lwjgl.opengl.GL20.GL_VERTEX_SHADER;
@@ -9,6 +27,7 @@ import static org.lwjgl.opengl.GL20.glCreateProgram;
 import static org.lwjgl.opengl.GL20.glGetProgramInfoLog;
 import static org.lwjgl.opengl.GL20.glGetProgrami;
 import static org.lwjgl.opengl.GL20.glLinkProgram;
+import static org.lwjgl.opengl.GL20.glUseProgram;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -22,18 +41,22 @@ import javax.annotation.PostConstruct;
 
 import org.lwjgl.BufferUtils;
 import org.lwjgl.PointerBuffer;
+import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL30;
 import org.lwjgl.opengl.GL31;
 import org.slf4j.Logger;
 
 import com.google.common.base.Charsets;
 import com.helospark.glslplugin.GlslPlatform;
-import com.helospark.glslplugin.shadertoy.ShadertoyShaderProporessor;
+import com.helospark.glslplugin.shadertoy.ShadertoyShaderPreprocessor;
+import com.helospark.glslplugin.transition.GlTransitionsPreprocessor;
 import com.helospark.lightdi.annotation.Component;
 import com.helospark.tactview.core.message.WatchedFileChangedMessage;
 import com.helospark.tactview.core.service.FileChangedWatchService;
 import com.helospark.tactview.core.timeline.TimelineInterval;
 import com.helospark.tactview.core.timeline.TimelinePosition;
+import com.helospark.tactview.core.timeline.image.ClipImage;
+import com.helospark.tactview.core.timeline.image.ReadOnlyClipImage;
 import com.helospark.tactview.core.util.logger.Slf4j;
 import com.helospark.tactview.core.util.messaging.IntervalDirtyMessage;
 import com.helospark.tactview.core.util.messaging.MessagingService;
@@ -45,15 +68,24 @@ public class GlslUtil {
 
     private MessagingService messagingService;
     private FileChangedWatchService fileWatchService;
-    private ShadertoyShaderProporessor shadertoyPreprocessor;
+    private ShadertoyShaderPreprocessor shadertoyPreprocessor;
+    private GlTransitionsPreprocessor glTransitionsPreprocessor;
+    private VertexBufferProvider vertexBufferProvider;
+    private RenderBufferProvider renderBufferProvider;
+    private UniformUtil uniformUtil;
 
     @Slf4j
     private Logger logger;
 
-    public GlslUtil(MessagingService messagingService, FileChangedWatchService fileWatchService, ShadertoyShaderProporessor shadertoyPreprocessor) {
+    public GlslUtil(MessagingService messagingService, FileChangedWatchService fileWatchService, ShadertoyShaderPreprocessor shadertoyPreprocessor,
+            VertexBufferProvider vertexBufferProvider, RenderBufferProvider renderBufferProvider, UniformUtil uniformUtil, GlTransitionsPreprocessor glTransitionsPreprocessor) {
         this.messagingService = messagingService;
         this.fileWatchService = fileWatchService;
         this.shadertoyPreprocessor = shadertoyPreprocessor;
+        this.vertexBufferProvider = vertexBufferProvider;
+        this.renderBufferProvider = renderBufferProvider;
+        this.uniformUtil = uniformUtil;
+        this.glTransitionsPreprocessor = glTransitionsPreprocessor;
     }
 
     @PostConstruct
@@ -72,13 +104,15 @@ public class GlslUtil {
         });
     }
 
-    public int createProgram(String vertexShader, String fragmentShader) {
+    public int useProgram(String vertexShader, String fragmentShader) {
         Integer cachedProgram = programCache.get(createProgramCacheKey(vertexShader, fragmentShader));
         if (cachedProgram != null) {
+            glUseProgram(cachedProgram);
             return cachedProgram;
         } else {
             int createdProgram = createProgramInternal(vertexShader, fragmentShader);
             programCache.put(createProgramCacheKey(vertexShader, fragmentShader), createdProgram);
+            glUseProgram(createdProgram);
             return createdProgram;
         }
     }
@@ -141,9 +175,13 @@ public class GlslUtil {
 
             if (protocol.equals("shadertoy")) {
                 content = shadertoyPreprocessor.preprocess(content);
-            } //else {
-              // TODO: introduce chain when needed
-              //}
+            } else if (protocol.equals("gltransitions")) {
+                content = glTransitionsPreprocessor.preprocess(content);
+            }
+
+            //else {
+            // TODO: introduce chain when needed
+            //}
 
             logger.debug("Compiling shader:\n" + content);
 
@@ -178,4 +216,59 @@ public class GlslUtil {
         }
     }
 
+    public void renderFullScreenQuad() {
+        int[] attachments = {GL31.GL_COLOR_ATTACHMENT1};
+        GL11.glClearColor(0.0f, 1.0f, 0.0f, 1.0f);;
+        glClear(GL_COLOR_BUFFER_BIT);
+
+        GL31.glDrawBuffers(attachments);
+        vertexBufferProvider.bindQuad();
+    }
+
+    public int bindClipImageToTexture(int programId, String name, ReadOnlyClipImage image, int channelId) {
+        ByteBuffer inputBuffer = image.getBuffer();
+        int width = image.getWidth();
+        int height = image.getHeight();
+
+        GL31.glActiveTexture(GL31.GL_TEXTURE0 + channelId);
+        int texture = createTexture();
+        glBindTexture(GL_TEXTURE_2D, texture);
+        inputBuffer.position(0);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, inputBuffer);
+
+        uniformUtil.bindIntegerToUniform(programId, channelId, name);
+
+        return texture;
+    }
+
+    public int createTexture() {
+        int tex = glGenTextures();
+        glBindTexture(GL_TEXTURE_2D, tex);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+        glBindTexture(GL_TEXTURE_2D, 0);
+        return tex;
+    }
+
+    public RenderBufferData attachOutputBuffer(int height, int width) {
+        RenderBufferData renderbuffer = renderBufferProvider.getRenderbuffer(width, height);
+
+        int fbo = renderbuffer.fbo;
+        int rbo = renderbuffer.rbo;
+
+        glBindFramebufferEXT(GL31.GL_FRAMEBUFFER, fbo);
+        glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, rbo);
+        glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL31.GL_COLOR_ATTACHMENT1, GL_RENDERBUFFER_EXT, rbo);
+        return renderbuffer;
+    }
+
+    public ClipImage readColorAttachement(int width, int height) {
+        ClipImage result = ClipImage.fromSize(width, height);
+        result.getBuffer().position(0);
+
+        GL31.glReadBuffer(GL31.GL_COLOR_ATTACHMENT1);
+        GL31.glReadPixels(0, 0, width, height, GL_RGBA, GL31.GL_UNSIGNED_BYTE, result.getBuffer());
+        return result;
+    }
 }

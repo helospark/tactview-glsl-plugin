@@ -106,7 +106,7 @@ public class GlslLensFlareEffect extends StatelessVideoEffect {
             int height = request.getCurrentFrame().getHeight();
 
             // first phase
-            int programId = glslUtil.createProgram("shaders/lensflare/scale-pass.vs", "shaders/lensflare/flare-first-pass.fs");
+            int programId = glslUtil.useProgram("shaders/lensflare/scale-pass.vs", "shaders/lensflare/flare-first-pass.fs");
             GL31.glUseProgram(programId);
             int downSampledWidth = (int) (width * scale);
             int downSampledHeight = (int) (height * scale);
@@ -131,7 +131,7 @@ public class GlslLensFlareEffect extends StatelessVideoEffect {
 
             // second phase
 
-            programId = glslUtil.createProgram("shaders/lensflare/pass.vs", "shaders/lensflare/flare-second-pass.fs");
+            programId = glslUtil.useProgram("shaders/lensflare/pass.vs", "shaders/lensflare/flare-second-pass.fs");
             GL31.glUseProgram(programId);
 
             GL31.glActiveTexture(GL31.GL_TEXTURE3);
@@ -162,7 +162,7 @@ public class GlslLensFlareEffect extends StatelessVideoEffect {
             render(programId);
 
             // 3rd phase
-            programId = glslUtil.createProgram("shaders/lensflare/pass.vs", "shaders/lensflare/flare-third-pass.fs");
+            programId = glslUtil.useProgram("shaders/lensflare/pass.vs", "shaders/lensflare/flare-third-pass.fs");
             GL31.glUseProgram(programId);
 
             RenderBufferData renderbufferData = renderBufferProvider.getRenderbuffer(width, height);

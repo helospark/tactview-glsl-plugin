@@ -5,7 +5,6 @@ import java.util.List;
 import org.lwjgl.opengl.GL31;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.helospark.glslplugin.AbstractRegularGlslStatelessVideoEffect;
 import com.helospark.glslplugin.util.GlslUtil;
 import com.helospark.glslplugin.util.RenderBufferProvider;
 import com.helospark.glslplugin.util.UniformUtil;
@@ -45,8 +44,8 @@ public class GlslFilmEffect extends AbstractRegularGlslStatelessVideoEffect {
 
         this.uniformUtil = uniformUtil;
 
-        this.vertexShader = "shaders/common/common.vs";
-        this.fragmentShader = "shaders/glitch/software_glitch.fs";
+        this.vertexShader = "shaders/film/film.vs";
+        this.fragmentShader = "shaders/film/film.fs";
     }
 
     public GlslFilmEffect(JsonNode node, LoadMetadata loadMetadata) {

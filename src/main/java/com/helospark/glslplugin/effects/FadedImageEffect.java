@@ -3,7 +3,6 @@ package com.helospark.glslplugin.effects;
 import java.util.List;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.helospark.glslplugin.AbstractRegularGlslStatelessVideoEffect;
 import com.helospark.glslplugin.shadertoy.ShadertoyHelpers;
 import com.helospark.glslplugin.util.GlslUtil;
 import com.helospark.glslplugin.util.RenderBufferProvider;
@@ -26,7 +25,7 @@ public class FadedImageEffect extends AbstractRegularGlslStatelessVideoEffect {
 
         this.shadertoyHelpers = shadertoyHelpers;
 
-        this.vertexShader = "shaders/common/common.vs";
+        this.vertexShader = "shaders/common/shadertoy-common.vs";
         this.fragmentShader = "shadertoy:shaders/faded/earlybird.fs";
     }
 

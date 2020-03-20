@@ -3,7 +3,7 @@ package com.helospark.glslplugin.shadertoy;
 import com.helospark.lightdi.annotation.Component;
 
 @Component
-public class ShadertoyShaderProporessor {
+public class ShadertoyShaderPreprocessor {
 
     public String preprocess(String content) {
         String uniforms = "#version 130\n"

@@ -58,4 +58,17 @@ public class UniformUtil {
         GL31.glUniform2f(uniformLocation, (float) value.x, (float) value.y);
     }
 
+    public void bindIntegerPointProviderToUniform(int programId, PointProvider provider, TimelinePosition position, String name) {
+        Point value = provider.getValueAt(position);
+        int uniformLocation = GL31.glGetUniformLocation(programId, name);
+        GL31.glUniform2i(uniformLocation, (int) value.x, (int) value.y);
+
+    }
+
+    public void bindColorProvider4ProviderToUniform(int programId, ColorProvider provider, TimelinePosition position, String name) {
+        Color value = provider.getValueAt(position);
+        int uniformLocation = GL31.glGetUniformLocation(programId, name);
+        GL31.glUniform4f(uniformLocation, (float) value.red, (float) value.green, (float) value.blue, 1.0f);
+    }
+
 }

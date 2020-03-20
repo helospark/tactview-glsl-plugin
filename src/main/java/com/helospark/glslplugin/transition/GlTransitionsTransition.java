@@ -10,6 +10,7 @@ import java.io.FileInputStream;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -33,6 +34,7 @@ import com.helospark.tactview.core.timeline.effect.interpolation.KeyframeableEff
 import com.helospark.tactview.core.timeline.effect.interpolation.ValueProviderDescriptor;
 import com.helospark.tactview.core.timeline.effect.interpolation.interpolator.MultiKeyframeBasedDoubleInterpolator;
 import com.helospark.tactview.core.timeline.effect.interpolation.interpolator.StepStringInterpolator;
+import com.helospark.tactview.core.timeline.effect.interpolation.provider.BooleanProvider;
 import com.helospark.tactview.core.timeline.effect.interpolation.provider.ColorProvider;
 import com.helospark.tactview.core.timeline.effect.interpolation.provider.DependentClipProvider;
 import com.helospark.tactview.core.timeline.effect.interpolation.provider.DoubleProvider;
@@ -51,7 +53,7 @@ public class GlTransitionsTransition extends AbstractVideoTransitionEffect {
     protected GlslUtil glslUtil;
     private UniformUtil uniformUtil;
 
-    private Map<String, KeyframeableEffect> parameters = new LinkedHashMap<>();
+    private Map<String, KeyframeableEffectData> parameters = new LinkedHashMap<>();
 
     public GlTransitionsTransition(TimelineInterval interval, RenderBufferProvider renderBufferProvider, VertexBufferProvider vertexBufferProvider, GlslUtil glslUtil,
             UniformUtil uniformUtil, String fragmentShader) {
@@ -120,9 +122,9 @@ public class GlTransitionsTransition extends AbstractVideoTransitionEffect {
     protected List<ValueProviderDescriptor> getValueProvidersInternal() {
         List<ValueProviderDescriptor> valueProviders = super.getValueProvidersInternal();
 
-        for (Map.Entry<String, KeyframeableEffect> entry : parameters.entrySet()) {
+        for (Entry<String, KeyframeableEffectData> entry : parameters.entrySet()) {
             ValueProviderDescriptor providerDescriptor = ValueProviderDescriptor.builder()
-                    .withKeyframeableEffect(entry.getValue())
+                    .withKeyframeableEffect(entry.getValue().provider)
                     .withName(entry.getKey())
                     .build();
 
@@ -158,16 +160,20 @@ public class GlTransitionsTransition extends AbstractVideoTransitionEffect {
                 double[] components = parseVec2(defaultValueString);
                 return PointProvider.ofNormalizedImagePosition(components[0], components[1]);
             }
+            case "bool" : {
+                boolean defaultValue = Boolean.parseBoolean(defaultValueString);
+                return new BooleanProvider(new MultiKeyframeBasedDoubleInterpolator(defaultValue ? 1.0 : 0.0));
+            }
             case "sampler2D" : {
                 return new DependentClipProvider(new StepStringInterpolator());
             }
             default :
-                throw new RuntimeException("Unknown type");
+                throw new RuntimeException("Unknown type " + type);
         }
     }
 
     private double[] parseVec4(String defaultValueString) {
-        Pattern vec4Pattern = Pattern.compile("vec3\\((.*?),\\s*(.*?),\\s*(.*?),\\s*(.*?)\\)");
+        Pattern vec4Pattern = Pattern.compile("vec4\\((.*?),\\s*(.*?),\\s*(.*?),\\s*(.*?)\\)");
         double[] components = new double[4];
         Matcher matcher = vec4Pattern.matcher(defaultValueString);
         if (matcher.matches()) {
@@ -242,12 +248,12 @@ public class GlTransitionsTransition extends AbstractVideoTransitionEffect {
     protected void initializeValueProviderInternal() {
         super.initializeValueProviderInternal();
 
-        Pattern uniformPatternVariant1 = Pattern.compile("uniform\\s+(.*?)\\s+(.*?);\\s*\\/\\/\\s*=\\s*(.*?)");
+        Pattern uniformPatternVariant1 = Pattern.compile("uniform\\s+(.*?)\\s+(.*?);\\s*\\/\\/\\s*=\\s*(.*)");
         Pattern uniformPatternVariant2 = Pattern.compile("uniform\\s+(.*?)\\s+(.*?);\\s*\\/\\/\\s*=\\s*(.*?)\\s*;.*");
         Pattern uniformPatternVariant3 = Pattern.compile("uniform\\s+(.*?)\\s+(.*?)\\s*\\/\\*\\s*=\\s*(.*?)\\s*\\*\\/;?.*");
-        Pattern uniformPatternVariant4 = Pattern.compile("uniform\\s+sampler2D\\s+(.*?)\\s*;.*");
+        Pattern uniformPatternVariant4 = Pattern.compile("uniform\\s+(sampler2D)\\s+(.*?)\\s*;.*");
 
-        List<Pattern> uniformPatterns = List.of(uniformPatternVariant1, uniformPatternVariant2, uniformPatternVariant3, uniformPatternVariant4);
+        List<Pattern> uniformPatterns = List.of(uniformPatternVariant2, uniformPatternVariant1, uniformPatternVariant3, uniformPatternVariant4);
 
         String shader = readShader();
 
@@ -262,13 +268,13 @@ public class GlTransitionsTransition extends AbstractVideoTransitionEffect {
                     if (matcher.groupCount() > 2) {
                         defaultValue = matcher.group(3);
                     }
-                    List<String> defaultUniforms = List.of("fromImage", "toImage", "progress");
+                    List<String> defaultUniforms = List.of("fromImage", "toImage", "progress", "ratio");
                     if (defaultUniforms.contains(name)) {
                         break;
                     }
 
-                    parameters.put(name, convertToParameter(type, defaultValue));
-
+                    parameters.put(name, new KeyframeableEffectData(convertToParameter(type, defaultValue), type));
+                    break;
                 }
             }
         }
@@ -276,24 +282,31 @@ public class GlTransitionsTransition extends AbstractVideoTransitionEffect {
 
     private void bindUniforms(int programId, InternalStatelessVideoTransitionEffectRequest request) {
         uniformUtil.bindFloatToUniform(programId, (float) request.getProgress(), "progress");
+        uniformUtil.bindFloatToUniform(programId, (float) request.getFirstFrame().getWidth() / request.getFirstFrame().getHeight(), "ratio");
 
         TimelinePosition position = request.getEffectPosition();
 
-        for (Map.Entry<String, KeyframeableEffect> entry : parameters.entrySet()) {
-            KeyframeableEffect parameterProvider = entry.getValue();
+        for (Entry<String, KeyframeableEffectData> entry : parameters.entrySet()) {
+            KeyframeableEffect parameterProvider = entry.getValue().provider;
+            String type = entry.getValue().type;
             String name = entry.getKey();
             Class<? extends KeyframeableEffect> providerType = parameterProvider.getClass();
 
             if (providerType.equals(DoubleProvider.class)) {
                 uniformUtil.bindDoubleProviderToUniform(programId, (DoubleProvider) parameterProvider, position, name);
+            } else if (providerType.equals(BooleanProvider.class)) {
+                BooleanProvider booleanProvider = (BooleanProvider) parameterProvider;
+                uniformUtil.bindIntegerToUniform(programId, booleanProvider.getValueAt(position) ? 1 : 0, name);
             } else if (providerType.equals(IntegerProvider.class)) {
                 uniformUtil.bindIntegerProviderToUniform(programId, (IntegerProvider) parameterProvider, position, name);
-            } else if (providerType.equals(ColorProvider.class)) {
+            } else if (providerType.equals(ColorProvider.class) && type.equals("vec3")) { // TODO: ColorWithAlphaProvider
                 uniformUtil.bindColorProviderToUniform(programId, (ColorProvider) parameterProvider, position, name);
-            } else if (providerType.equals(PointProvider.class)) {
+            } else if (providerType.equals(ColorProvider.class) && type.equals("vec4")) { // TODO: ColorWithAlphaProvider
+                uniformUtil.bindColorProvider4ProviderToUniform(programId, (ColorProvider) parameterProvider, position, name);
+            } else if (providerType.equals(PointProvider.class) && type.equals("vec2")) {
                 uniformUtil.bindPointProviderToUniform(programId, (PointProvider) parameterProvider, position, name);
-            } else if (providerType.equals(PointProvider.class)) {
-                uniformUtil.bindPointProviderToUniform(programId, (PointProvider) parameterProvider, position, name);
+            } else if (providerType.equals(PointProvider.class) && type.equals("ivec2")) {
+                uniformUtil.bindIntegerPointProviderToUniform(programId, (PointProvider) parameterProvider, position, name);
             } else if (providerType.equals(DependentClipProvider.class)) {
                 // TODO: later
                 //                String clipId = ((DependentClipProvider)parameterProvider).getValueAt(position);
@@ -306,6 +319,17 @@ public class GlTransitionsTransition extends AbstractVideoTransitionEffect {
     public StatelessEffect cloneEffect(CloneRequestMetadata cloneRequestMetadata) {
         // TODO Auto-generated method stub
         return null;
+    }
+
+    static class KeyframeableEffectData {
+        KeyframeableEffect provider;
+        String type;
+
+        public KeyframeableEffectData(KeyframeableEffect provider, String type) {
+            this.provider = provider;
+            this.type = type;
+        }
+
     }
 
 }

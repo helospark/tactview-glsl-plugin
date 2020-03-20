@@ -11,18 +11,19 @@ public class GlTransitionsPreprocessor {
                 + "\n"
                 + "uniform sampler2D fromImage;\n" +
                 "uniform sampler2D toImage;\n" +
-                "uniform float progress;\n"
+                "uniform float progress;\n" +
+                "uniform float ratio;\n"
                 + "\n"
                 + "varying vec2 vCoordinate;" +
                 "\n\n";
 
         String header = ""
                 + "vec4 getFromColor(vec2 coordinate) {\n"
-                + "  return texture2D(fromImage, coordinate);\n"
+                + "  return texture2D(fromImage, vec2(1,1) - coordinate);\n"
                 + "}\n"
                 + "\n"
                 + "vec4 getToColor(vec2 coordinate) {\n"
-                + "  return texture2D(toImage, coordinate);\n"
+                + "  return texture2D(toImage, vec2(1,1) -coordinate);\n"
                 + "}\n"
                 + "\n";
 

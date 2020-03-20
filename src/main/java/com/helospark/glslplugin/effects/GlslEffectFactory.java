@@ -110,4 +110,49 @@ public class GlslEffectFactory {
                 .withEffectType(TimelineEffectType.VIDEO_EFFECT)
                 .build();
     }
+
+    @Bean
+    public StandardEffectFactory glslBarrelBlurEffect(GlslUtil glslUtil, RenderBufferProvider renderBufferProvider, VertexBufferProvider vertexBufferProvider, ShadertoyHelpers shadertoyHelpers,
+            UniformUtil uniformUtil) {
+        return StandardEffectFactory.builder()
+                .withFactory(
+                        request -> new GlslBarrelBlurEffect(new TimelineInterval(request.getPosition(), TimelineLength.ofMillis(5000)), glslUtil, renderBufferProvider, vertexBufferProvider,
+                                uniformUtil, shadertoyHelpers))
+                .withRestoreFactory((node, loadMetadata) -> new GlslBarrelBlurEffect(node, loadMetadata))
+                .withName("Barrel chroma blur")
+                .withSupportedEffectId("glslbarrelchromablur")
+                .withSupportedClipTypes(List.of(TimelineClipType.VIDEO, TimelineClipType.IMAGE))
+                .withEffectType(TimelineEffectType.VIDEO_EFFECT)
+                .build();
+    }
+
+    @Bean
+    public StandardEffectFactory glslDrunkEffect(GlslUtil glslUtil, RenderBufferProvider renderBufferProvider, VertexBufferProvider vertexBufferProvider, ShadertoyHelpers shadertoyHelpers,
+            UniformUtil uniformUtil) {
+        return StandardEffectFactory.builder()
+                .withFactory(
+                        request -> new GlslDrunkEffect(new TimelineInterval(request.getPosition(), TimelineLength.ofMillis(5000)), glslUtil, renderBufferProvider, vertexBufferProvider,
+                                shadertoyHelpers, uniformUtil))
+                .withRestoreFactory((node, loadMetadata) -> new GlslDrunkEffect(node, loadMetadata))
+                .withName("Drunk camera")
+                .withSupportedEffectId("glsldrunkeffect")
+                .withSupportedClipTypes(List.of(TimelineClipType.VIDEO, TimelineClipType.IMAGE))
+                .withEffectType(TimelineEffectType.VIDEO_EFFECT)
+                .build();
+    }
+
+    @Bean
+    public StandardEffectFactory glslNightvisionEffect(GlslUtil glslUtil, RenderBufferProvider renderBufferProvider, VertexBufferProvider vertexBufferProvider, ShadertoyHelpers shadertoyHelpers,
+            UniformUtil uniformUtil) {
+        return StandardEffectFactory.builder()
+                .withFactory(
+                        request -> new GlslNightVisionEffect(new TimelineInterval(request.getPosition(), TimelineLength.ofMillis(5000)), glslUtil, renderBufferProvider, vertexBufferProvider,
+                                shadertoyHelpers, uniformUtil))
+                .withRestoreFactory((node, loadMetadata) -> new GlslNightVisionEffect(node, loadMetadata))
+                .withName("Night vision")
+                .withSupportedEffectId("glslnightvision")
+                .withSupportedClipTypes(List.of(TimelineClipType.VIDEO, TimelineClipType.IMAGE))
+                .withEffectType(TimelineEffectType.VIDEO_EFFECT)
+                .build();
+    }
 }

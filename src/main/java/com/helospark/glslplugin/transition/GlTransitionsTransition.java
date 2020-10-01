@@ -6,7 +6,7 @@ import static org.lwjgl.opengl.GL11.glBindTexture;
 import static org.lwjgl.opengl.GL11.glDisable;
 import static org.lwjgl.opengl.GL20.glUseProgram;
 
-import java.io.FileInputStream;
+import java.net.URL;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -235,8 +235,8 @@ public class GlTransitionsTransition extends AbstractVideoTransitionEffect {
     }
 
     protected String readShader() {
-        String fileToLoad = this.getClass().getResource("/" + fragmentShader.replaceAll("gltransitions:", "")).getFile();
-        try (var inputStream = new FileInputStream(fileToLoad)) {
+        URL fileToLoad = this.getClass().getResource("/" + fragmentShader.replaceAll("gltransitions:", ""));
+        try (var inputStream = fileToLoad.openStream()) {
             byte[] dataBytes = inputStream.readAllBytes();
             return new String(dataBytes, Charsets.UTF_8);
         } catch (Exception e) {

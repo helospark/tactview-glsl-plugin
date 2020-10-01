@@ -38,25 +38,25 @@ uniform float timer;
 const float permTexUnit = 1.0/256.0;        // Perm texture texel-size
 const float permTexUnitHalf = 0.5/256.0;    // Half perm texture texel-size
 
-uniform float grainamount; //grain amount
-uniform bool colored; //colored noise?
+uniform float grainamount;
+uniform bool colored;
 uniform float coloramount;
-uniform float grainsize; //grain particle size (1.5 - 2.5)
-uniform float lumamount; //
-uniform float filterStrength;
-
+uniform float grainsize;
+uniform float lumamount;
+ 
 varying vec2 vUv;
 varying vec2 vCanvasUv;
+
 uniform vec2 resolution;
 uniform sampler2D inputImage;
 
-uniform float k, kcube, scale, dispersion, blurAmount; //k = 0.2, kcube = 0.3, scale = 0.9, dispersion = 0.01
+uniform float k, kcube, scale, dispersion, blurAmount;
 uniform bool blurEnabled;
 uniform float scratches;
 uniform float burn;
 
-const float vignette_size = 1.1; // vignette size
-const float tolerance = 0.7; //edge softness
+uniform float vignette_size;
+uniform float tolerance;
 
 
 float width = resolution.x;

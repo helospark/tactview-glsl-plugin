@@ -36,9 +36,9 @@ public class UniformUtil {
         GL31.glUniform1i(uniformLocation, value);
     }
 
-    public void bindVec2ToUniform(int programId, int x, int y, String name) {
+    public void bindVec2ToUniform(int programId, double x, double y, String name) {
         int uniformLocation = GL31.glGetUniformLocation(programId, name);
-        GL31.glUniform2f(uniformLocation, x, y);
+        GL31.glUniform2f(uniformLocation, (float) x, (float) y);
     }
 
     public void bindIntegerProviderToUniform(int programId, IntegerProvider provider, TimelinePosition position, String name) {

@@ -1,3 +1,6 @@
 [submodule "gl-transitions"]
 	path = gl-transitions
 	url = https://github.com/gl-transitions/gl-transitions.git
+[submodule "src/main/resources/gl-transitions"]
+	path = src/main/resources/gl-transitions
+	url = https://github.com/gl-transitions/gl-transitions.git

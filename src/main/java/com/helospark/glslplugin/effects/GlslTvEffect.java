@@ -34,6 +34,7 @@ import com.helospark.tactview.core.util.ReflectionUtil;
 // https://www.shadertoy.com/view/ldXGW4
 
 // https://www.shadertoy.com/view/Ms23DR
+// https://www.shadertoy.com/view/WsSSDc
 public class GlslTvEffect extends AbstractRegularGlslStatelessVideoEffect {
     private ShadertoyHelpers shadertoyHelpers;
 
@@ -70,8 +71,9 @@ public class GlslTvEffect extends AbstractRegularGlslStatelessVideoEffect {
                 new ValueListElement("shadertoy:shaders/tv/vcrtape.fs", "VCR tape"),
                 new ValueListElement("shadertoy:shaders/tv/vhs.fs", "VHS"),
                 new ValueListElement("shadertoy:shaders/tv/vhspaused.fs", "VHS paused"),
-                new ValueListElement("shadertoy:shaders/tv/mattiascrt.fs", "CRT closeup"));
-        typeProvider = new ValueListProvider<>(glitchShaders, new StepStringInterpolator("shadertoy:shaders/glitch/digitalglitch.fs"));
+                new ValueListElement("shadertoy:shaders/tv/mattiascrt.fs", "CRT closeup"),
+                new ValueListElement("shadertoy:shaders/tv/analogtv.fs", "Analog CRT"));
+        typeProvider = new ValueListProvider<>(glitchShaders, new StepStringInterpolator("shadertoy:shaders/tv/analogtv.fs"));
     }
 
     @Override

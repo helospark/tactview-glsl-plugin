@@ -1,9 +1,5 @@
 package com.helospark.glslplugin.transition;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,14 +32,12 @@ public class GlTransitionsFactory {
             UniformUtil uniformUtil) {
 
         List<StandardEffectFactory> result = new ArrayList<>();
-        List<String> filePath;
-        try {
-            filePath = getResourceFiles(ROOT_DIRECTORY);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        List<String> fileNames;
+        fileNames = ResourceList.getFileNamesInDirectory("shaders/gl-transitions");
 
-        for (String fragmentShader : filePath) {
+        System.out.println("Found GL transition resources: " + fileNames);
+
+        for (String fragmentShader : fileNames) {
             String fragmentShaderResource = "gltransitions:" + ROOT_DIRECTORY + "/" + fragmentShader;
             String name = fragmentShader.replaceAll("\\.glsl", "");
             StandardEffectFactory factory = StandardEffectFactory.builder()
@@ -66,29 +60,4 @@ public class GlTransitionsFactory {
         return result;
     }
 
-    private List<String> getResourceFiles(String path) throws IOException {
-        List<String> filenames = new ArrayList<>();
-
-        try (
-                InputStream in = getResourceAsStream(path);
-                BufferedReader br = new BufferedReader(new InputStreamReader(in))) {
-            String resource;
-
-            while ((resource = br.readLine()) != null) {
-                filenames.add(resource);
-            }
-        }
-
-        return filenames;
-    }
-
-    private InputStream getResourceAsStream(String resource) {
-        final InputStream in = getContextClassLoader().getResourceAsStream(resource);
-
-        return in == null ? getClass().getResourceAsStream(resource) : in;
-    }
-
-    private ClassLoader getContextClassLoader() {
-        return Thread.currentThread().getContextClassLoader();
-    }
 }

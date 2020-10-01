@@ -29,7 +29,8 @@ import static org.lwjgl.opengl.GL20.glLinkProgram;
 import static org.lwjgl.opengl.GL20.glUseProgram;
 
 import java.io.File;
-import java.io.FileInputStream;
+import java.io.InputStream;
+import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.util.HashMap;
@@ -167,15 +168,21 @@ public class GlslUtil {
                 fileName = resource;
             }
 
-            String fileToLoad = this.getClass().getResource("/" + fileName).getFile();
-            fileWatchService.requestFileWatch(new File(fileToLoad));
-            byte[] dataBytes = new FileInputStream(fileToLoad).readAllBytes();
-            String content = new String(dataBytes, Charsets.UTF_8);
+            URL shaderResource = this.getClass().getResource("/" + fileName);
+            File fileToLoad = new File(shaderResource.getFile());
+            if (fileToLoad.exists()) { // it only exists during local run
+                fileWatchService.requestFileWatch(fileToLoad);
+            }
+            String content;
+            try (InputStream openStream = shaderResource.openStream()) {
+                byte[] dataBytes = openStream.readAllBytes();
+                content = new String(dataBytes, Charsets.UTF_8);
 
-            if (protocol.equals("shadertoy")) {
-                content = shadertoyPreprocessor.preprocess(content);
-            } else if (protocol.equals("gltransitions")) {
-                content = glTransitionsPreprocessor.preprocess(content);
+                if (protocol.equals("shadertoy")) {
+                    content = shadertoyPreprocessor.preprocess(content);
+                } else if (protocol.equals("gltransitions")) {
+                    content = glTransitionsPreprocessor.preprocess(content);
+                }
             }
 
             //else {
@@ -217,7 +224,7 @@ public class GlslUtil {
 
     public void renderFullScreenQuad() {
         int[] attachments = {GL31.GL_COLOR_ATTACHMENT1};
-        GL11.glClearColor(0.0f, 1.0f, 0.0f, 1.0f);;
+        GL11.glClearColor(0.0f, 1.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
         GL31.glDrawBuffers(attachments);

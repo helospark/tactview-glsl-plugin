@@ -74,7 +74,8 @@ public class GlslTvEffect extends AbstractRegularGlslStatelessVideoEffect {
                 new ValueListElement("shadertoy:shaders/tv/mattiascrt.fs", "CRT closeup"),
                 new ValueListElement("shadertoy:shaders/tv/analogtv.fs", "Analog CRT"),
                 new ValueListElement("shadertoy:shaders/tv/scanline.fs", "Scanline CRT"),
-                new ValueListElement("shadertoy:shaders/tv/bad_tv.fs", "Bad TV"));
+                new ValueListElement("shadertoy:shaders/tv/bad_tv.fs", "Bad TV"),
+                new ValueListElement("shadertoy:shaders/tv/lcd.fs", "LCD"));
         typeProvider = new ValueListProvider<>(glitchShaders, new StepStringInterpolator("shadertoy:shaders/tv/analogtv.fs"));
     }
 

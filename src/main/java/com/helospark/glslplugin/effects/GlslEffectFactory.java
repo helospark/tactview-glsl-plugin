@@ -155,6 +155,21 @@ public class GlslEffectFactory {
     }
 
     @Bean
+    public StandardEffectFactory glslMatrixRainEffect(GlslUtil glslUtil, RenderBufferProvider renderBufferProvider, VertexBufferProvider vertexBufferProvider, ShadertoyHelpers shadertoyHelpers,
+            UniformUtil uniformUtil) {
+        return StandardEffectFactory.builder()
+                .withFactory(
+                        request -> new GlslMatrixRainEffect(new TimelineInterval(request.getPosition(), TimelineLength.ofMillis(5000)), glslUtil, renderBufferProvider, vertexBufferProvider,
+                                shadertoyHelpers, uniformUtil))
+                .withRestoreFactory((node, loadMetadata) -> new GlslMatrixRainEffect(node, loadMetadata))
+                .withName("Matrix rain")
+                .withSupportedEffectId("glslmatrixrain")
+                .withSupportedClipTypes(List.of(TimelineClipType.VIDEO, TimelineClipType.IMAGE))
+                .withEffectType(TimelineEffectType.VIDEO_EFFECT)
+                .build();
+    }
+
+    @Bean
     public StandardEffectFactory glslNightvisionEffect(GlslUtil glslUtil, RenderBufferProvider renderBufferProvider, VertexBufferProvider vertexBufferProvider, ShadertoyHelpers shadertoyHelpers,
             UniformUtil uniformUtil) {
         return StandardEffectFactory.builder()

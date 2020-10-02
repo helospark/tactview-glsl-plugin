@@ -25,7 +25,7 @@ public class GlslEffectFactory {
                 .withFactory(
                         request -> new GlslFilmEffect(new TimelineInterval(request.getPosition(), TimelineLength.ofMillis(5000)), glslUtil, renderBufferProvider, vertexBufferProvider, uniformUtil))
                 .withRestoreFactory((node, loadMetadata) -> new GlslFilmEffect(node, loadMetadata))
-                .withName("Old film")
+                .withName("Film effects")
                 .withSupportedEffectId("glslfilm")
                 .withSupportedClipTypes(List.of(TimelineClipType.VIDEO, TimelineClipType.IMAGE))
                 .withEffectType(TimelineEffectType.VIDEO_EFFECT)
@@ -67,6 +67,19 @@ public class GlslEffectFactory {
                 .withRestoreFactory((node, loadMetadata) -> new GlslTvEffect(node, loadMetadata))
                 .withName("TV effects")
                 .withSupportedEffectId("glsltv")
+                .withSupportedClipTypes(List.of(TimelineClipType.VIDEO, TimelineClipType.IMAGE))
+                .withEffectType(TimelineEffectType.VIDEO_EFFECT)
+                .build();
+    }
+
+    @Bean
+    public StandardEffectFactory glslOldFilmEffect(GlslUtil glslUtil, RenderBufferProvider renderBufferProvider, VertexBufferProvider vertexBufferProvider, ShadertoyHelpers shadertoyHelpers) {
+        return StandardEffectFactory.builder()
+                .withFactory(request -> new GlslOldFilmEffect(new TimelineInterval(request.getPosition(), TimelineLength.ofMillis(5000)), glslUtil, renderBufferProvider, vertexBufferProvider,
+                        shadertoyHelpers))
+                .withRestoreFactory((node, loadMetadata) -> new GlslOldFilmEffect(node, loadMetadata))
+                .withName("Old film")
+                .withSupportedEffectId("glsloldfilm")
                 .withSupportedClipTypes(List.of(TimelineClipType.VIDEO, TimelineClipType.IMAGE))
                 .withEffectType(TimelineEffectType.VIDEO_EFFECT)
                 .build();

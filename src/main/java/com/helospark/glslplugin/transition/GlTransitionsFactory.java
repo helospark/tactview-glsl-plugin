@@ -33,7 +33,7 @@ public class GlTransitionsFactory {
 
         List<StandardEffectFactory> result = new ArrayList<>();
         List<String> fileNames;
-        fileNames = ResourceList.getFileNamesInDirectory("shaders/gl-transitions");
+        fileNames = ResourceList.getFileNamesInDirectory("gl-transitions/transitions");
 
         System.out.println("Found GL transition resources: " + fileNames);
 

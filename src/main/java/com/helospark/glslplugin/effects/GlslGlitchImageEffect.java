@@ -62,8 +62,10 @@ public class GlslGlitchImageEffect extends AbstractRegularGlslStatelessVideoEffe
         List<ValueListElement> glitchShaders = List.of(
                 new ValueListElement("shadertoy:shaders/glitch/glitchpixel.fs", "Heavy TV glitch"),
                 new ValueListElement("shadertoy:shaders/glitch/digitalglitch.fs", "Digital glitch"),
+                new ValueListElement("shadertoy:shaders/glitch/digitalglitch_2.fs", "Digital glitch 2"),
                 new ValueListElement("shadertoy:shaders/glitch/vhspaused.fs", "VHS paused"),
                 new ValueListElement("shadertoy:shaders/glitch/mpeg_artifacts.fs", "MPEG artifact"),
+                new ValueListElement("shadertoy:shaders/glitch/mpeg_glitch.fs", "MPEG glitch"),
                 new ValueListElement("shadertoy:shaders/glitch/rgbshiftglitch.fs", "RGB shift glitch"),
                 new ValueListElement("shadertoy:shaders/glitch/rgbshiftglitch2.fs", "RGB shift glitch 2"),
                 new ValueListElement("shadertoy:shaders/glitch/interlaced_glitch.fs", "Interlaced glitch"));

@@ -19,42 +19,26 @@ import com.helospark.tactview.core.timeline.effect.interpolation.provider.ValueL
 import com.helospark.tactview.core.timeline.effect.interpolation.provider.ValueListProvider;
 import com.helospark.tactview.core.util.ReflectionUtil;
 
-// https://www.shadertoy.com/view/MtfSz2
-// https://www.shadertoy.com/view/Md3SRM
-// https://www.shadertoy.com/view/4l2SDh
-// https://www.shadertoy.com/view/XtBXDt
-// https://www.shadertoy.com/view/Mt2XDV
-// https://www.shadertoy.com/view/4syfRt
-// https://www.shadertoy.com/view/lsfGD2
-// https://www.shadertoy.com/view/4lB3Dc
-// https://www.shadertoy.com/view/Md2GDw
-// https://www.shadertoy.com/view/4t23Rc
-// https://www.shadertoy.com/view/XtfXR8
-// https://www.shadertoy.com/view/MtXBDs
-// https://www.shadertoy.com/view/ldXGW4
-
-// https://www.shadertoy.com/view/Ms23DR
-// https://www.shadertoy.com/view/WsSSDc
-public class GlslTvEffect extends AbstractRegularGlslStatelessVideoEffect {
+public class GlslOldFilmEffect extends AbstractRegularGlslStatelessVideoEffect {
     private ShadertoyHelpers shadertoyHelpers;
 
     private ValueListProvider<ValueListElement> typeProvider;
 
-    public GlslTvEffect(TimelineInterval interval, GlslUtil glslUtil, RenderBufferProvider renderBufferProvider, VertexBufferProvider vertexBufferProvider,
+    public GlslOldFilmEffect(TimelineInterval interval, GlslUtil glslUtil, RenderBufferProvider renderBufferProvider, VertexBufferProvider vertexBufferProvider,
             ShadertoyHelpers shadertoyHelpers) {
         super(interval, renderBufferProvider, vertexBufferProvider, glslUtil);
 
         this.shadertoyHelpers = shadertoyHelpers;
 
         this.vertexShader = "shaders/common/shadertoy-common.vs";
-        this.fragmentShader = "shadertoy:shaders/glitch/software_glitch.fs";
+        this.fragmentShader = "shadertoy:shaders/film/oldfilm_2.fs";
     }
 
-    public GlslTvEffect(JsonNode node, LoadMetadata loadMetadata) {
+    public GlslOldFilmEffect(JsonNode node, LoadMetadata loadMetadata) {
         super(node, loadMetadata);
     }
 
-    public GlslTvEffect(StatelessVideoEffect effect, CloneRequestMetadata cloneRequestMetadata) {
+    public GlslOldFilmEffect(StatelessVideoEffect effect, CloneRequestMetadata cloneRequestMetadata) {
         super(effect, cloneRequestMetadata);
 
         ReflectionUtil.copyOrCloneFieldFromTo(effect, this);
@@ -62,20 +46,10 @@ public class GlslTvEffect extends AbstractRegularGlslStatelessVideoEffect {
 
     @Override
     protected void initializeValueProviderInternal() {
-        List<ValueListElement> glitchShaders = List.of(
-                new ValueListElement("shadertoy:shaders/tv/software_glitch.fs", "Bad analog"),
-                new ValueListElement("shadertoy:shaders/tv/oldtv.fs", "Old TV"),
-                new ValueListElement("shadertoy:shaders/tv/oldtv2.fs", "Old TV 2"),
-                new ValueListElement("shadertoy:shaders/tv/oldtv3.fs", "Old TV 3"),
-                new ValueListElement("shadertoy:shaders/tv/oldtv4.fs", "Old TV 4"),
-                new ValueListElement("shadertoy:shaders/tv/vcrtape.fs", "VCR tape"),
-                new ValueListElement("shadertoy:shaders/tv/vhs.fs", "VHS"),
-                new ValueListElement("shadertoy:shaders/glitch/vhspaused.fs", "VHS paused"),
-                new ValueListElement("shadertoy:shaders/tv/mattiascrt.fs", "CRT closeup"),
-                new ValueListElement("shadertoy:shaders/tv/analogtv.fs", "Analog CRT"),
-                new ValueListElement("shadertoy:shaders/tv/scanline.fs", "Scanline CRT"),
-                new ValueListElement("shadertoy:shaders/tv/bad_tv.fs", "Bad TV"));
-        typeProvider = new ValueListProvider<>(glitchShaders, new StepStringInterpolator("shadertoy:shaders/tv/analogtv.fs"));
+        List<ValueListElement> oldFilmShaders = List.of(
+                new ValueListElement("shadertoy:shaders/film/oldfilm_2.fs", "Old film 1"),
+                new ValueListElement("shadertoy:shaders/film/oldfilm_3.fs", "Old film 2"));
+        typeProvider = new ValueListProvider<>(oldFilmShaders, new StepStringInterpolator("shadertoy:shaders/film/oldfilm_2.fs"));
     }
 
     @Override
@@ -97,11 +71,6 @@ public class GlslTvEffect extends AbstractRegularGlslStatelessVideoEffect {
     @Override
     protected void bindUniforms(int programId, StatelessEffectRequest request) {
         shadertoyHelpers.attachCommonShadertoyUniforms(request, programId);
-
-        ValueListElement value = typeProvider.getValueAt(request.getEffectPosition());
-        if (value.getId().endsWith("vcrtape.fs")) {
-            shadertoyHelpers.attachTextures(programId, "shaders/glitch/texture/rgbnoise.png");
-        }
     }
 
     @Override
@@ -111,7 +80,7 @@ public class GlslTvEffect extends AbstractRegularGlslStatelessVideoEffect {
 
     @Override
     public StatelessEffect cloneEffect(CloneRequestMetadata cloneRequestMetadata) {
-        return new GlslTvEffect(this, cloneRequestMetadata);
+        return new GlslOldFilmEffect(this, cloneRequestMetadata);
     }
 
 }

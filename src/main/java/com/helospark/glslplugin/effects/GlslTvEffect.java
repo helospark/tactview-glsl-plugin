@@ -69,6 +69,7 @@ public class GlslTvEffect extends AbstractRegularGlslStatelessVideoEffect {
                 new ValueListElement("shadertoy:shaders/tv/oldtv3.fs", "Old TV 3"),
                 new ValueListElement("shadertoy:shaders/tv/oldtv4.fs", "Old TV 4"),
                 new ValueListElement("shadertoy:shaders/tv/vcrtape.fs", "VCR tape"),
+                new ValueListElement("shadertoy:shaders/tv/vcr_2.fs", "VCR tape 2"),
                 new ValueListElement("shadertoy:shaders/tv/vhs.fs", "VHS"),
                 new ValueListElement("shadertoy:shaders/glitch/vhspaused.fs", "VHS paused"),
                 new ValueListElement("shadertoy:shaders/tv/mattiascrt.fs", "CRT closeup"),
@@ -102,6 +103,8 @@ public class GlslTvEffect extends AbstractRegularGlslStatelessVideoEffect {
         ValueListElement value = typeProvider.getValueAt(request.getEffectPosition());
         if (value.getId().endsWith("vcrtape.fs")) {
             shadertoyHelpers.attachTextures(programId, "shaders/glitch/texture/rgbnoise.png");
+        } else if (value.getId().endsWith("vcr_2.fs")) {
+            shadertoyHelpers.attachTextures(programId, "shaders/glitch/texture/noise_256.png");
         }
     }
 

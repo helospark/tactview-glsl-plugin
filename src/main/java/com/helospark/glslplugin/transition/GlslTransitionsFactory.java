@@ -1,7 +1,10 @@
 package com.helospark.glslplugin.transition;
 
+import static com.helospark.glslplugin.conditional.GlslVersion.GLSL_1_30;
+
 import java.util.List;
 
+import com.helospark.glslplugin.conditional.ConditionalOnGlsl;
 import com.helospark.glslplugin.util.GlslUtil;
 import com.helospark.glslplugin.util.RenderBufferProvider;
 import com.helospark.glslplugin.util.UniformUtil;
@@ -15,6 +18,7 @@ import com.helospark.tactview.core.timeline.effect.StandardEffectFactory;
 import com.helospark.tactview.core.timeline.effect.TimelineEffectType;
 
 @Configuration
+@ConditionalOnGlsl(version = GLSL_1_30)
 public class GlslTransitionsFactory {
 
     @Bean

@@ -1,7 +1,10 @@
 package com.helospark.glslplugin.effects;
 
+import static com.helospark.glslplugin.conditional.GlslVersion.GLSL_1_30;
+
 import java.util.List;
 
+import com.helospark.glslplugin.conditional.ConditionalOnGlsl;
 import com.helospark.glslplugin.shadertoy.ShadertoyHelpers;
 import com.helospark.glslplugin.texture.TextureLoader;
 import com.helospark.glslplugin.util.GlslUtil;
@@ -17,6 +20,7 @@ import com.helospark.tactview.core.timeline.effect.StandardEffectFactory;
 import com.helospark.tactview.core.timeline.effect.TimelineEffectType;
 
 @Configuration
+@ConditionalOnGlsl(version = GLSL_1_30)
 public class GlslEffectFactory {
 
     @Bean

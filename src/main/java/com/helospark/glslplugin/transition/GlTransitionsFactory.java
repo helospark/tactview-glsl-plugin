@@ -3,6 +3,7 @@ package com.helospark.glslplugin.transition;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.helospark.glslplugin.conditional.ConditionalOnGlsl;
 import com.helospark.glslplugin.util.GlslUtil;
 import com.helospark.glslplugin.util.RenderBufferProvider;
 import com.helospark.glslplugin.util.UniformUtil;
@@ -17,6 +18,7 @@ import com.helospark.tactview.core.timeline.effect.StandardEffectFactory;
 import com.helospark.tactview.core.timeline.effect.TimelineEffectType;
 
 @Configuration
+@ConditionalOnGlsl
 public class GlTransitionsFactory {
 
     private static final String ROOT_DIRECTORY = "shaders/gl-transitions";
@@ -50,6 +52,7 @@ public class GlTransitionsFactory {
                     .withSupportedEffectId(name + "gltransition")
                     .withSupportedClipTypes(List.of(TimelineClipType.VIDEO, TimelineClipType.IMAGE))
                     .withEffectType(TimelineEffectType.VIDEO_TRANSITION)
+                    .withIsFullWidth(false)
                     .build();
 
             factory.setContext(context); // TODO: this is needed due to a LightDi bug

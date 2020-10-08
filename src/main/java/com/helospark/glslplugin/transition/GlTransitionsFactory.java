@@ -21,7 +21,7 @@ import com.helospark.tactview.core.timeline.effect.TimelineEffectType;
 @ConditionalOnGlsl
 public class GlTransitionsFactory {
 
-    private static final String ROOT_DIRECTORY = "shaders/gl-transitions";
+    private static final String ROOT_DIRECTORY = "gl-transitions/transitions";
 
     private LightDiContext context;
 
@@ -35,7 +35,7 @@ public class GlTransitionsFactory {
 
         List<StandardEffectFactory> result = new ArrayList<>();
         List<String> fileNames;
-        fileNames = ResourceList.getFileNamesInDirectory("gl-transitions/transitions");
+        fileNames = ResourceList.getFileNamesInDirectory(ROOT_DIRECTORY);
 
         System.out.println("Found GL transition resources: " + fileNames);
 

@@ -31,6 +31,27 @@
       <version>RELEASE</version>
     </dependency>
     <dependency>
+      <groupId>org.joml</groupId>
+      <artifactId>joml</artifactId>
+      <version>1.9.22</version>
+    </dependency>
+    <dependency>
+      <groupId>org.lwjgl</groupId>
+      <artifactId>lwjgl-opengl</artifactId>
+      <version>3.2.3</version>
+    </dependency>
+
+    <!-- Native libraries -->
+    <!-- Possibly 2 different release windows & linux better? -->
+    <!-- Linux -->
+    <dependency>
+      <groupId>org.lwjgl</groupId>
+      <artifactId>lwjgl-glfw</artifactId>
+      <version>RELEASE</version>
+      <classifier>natives-linux</classifier>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
       <groupId>org.lwjgl</groupId>
       <artifactId>lwjgl</artifactId>
       <version>3.2.3</version>
@@ -44,19 +65,8 @@
       <classifier>natives-linux</classifier>
       <scope>runtime</scope>
     </dependency>
-    <dependency>
-      <groupId>org.joml</groupId>
-      <artifactId>joml</artifactId>
-      <version>1.9.22</version>
-    </dependency>
 
-    <dependency>
-      <groupId>org.lwjgl</groupId>
-      <artifactId>lwjgl-glfw</artifactId>
-      <version>RELEASE</version>
-      <classifier>natives-linux</classifier>
-      <scope>runtime</scope>
-    </dependency>
+    <!-- Windows -->
     <dependency>
       <groupId>org.lwjgl</groupId>
       <artifactId>lwjgl-glfw</artifactId>
@@ -66,9 +76,19 @@
     </dependency>
     <dependency>
       <groupId>org.lwjgl</groupId>
+      <artifactId>lwjgl</artifactId>
+      <version>3.2.3</version>
+      <classifier>natives-windows</classifier>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.lwjgl</groupId>
       <artifactId>lwjgl-opengl</artifactId>
       <version>3.2.3</version>
+      <classifier>natives-windows</classifier>
+      <scope>runtime</scope>
     </dependency>
+
 
     <!-- Test -->
     <dependency>

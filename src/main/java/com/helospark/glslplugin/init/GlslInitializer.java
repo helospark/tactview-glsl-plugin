@@ -60,7 +60,7 @@ public class GlslInitializer {
 
             window = glfwCreateWindow(1, 1, "Dummy window for GLFW (GLSL shader plugin)", NULL, NULL);
             if (window == NULL) {
-                throw new AssertionError("Failed to create the GLFW window");
+                throw new AssertionError("Failed to create the GLFW window, most likely due to not supported OpenGL 2.0");
             }
 
             glfwMakeContextCurrent(window);
@@ -77,7 +77,7 @@ public class GlslInitializer {
 
             initialized = true;
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            LOGGER.error("Unable to initialize GLSL plugin", e);
         }
     }
 
@@ -91,7 +91,7 @@ public class GlslInitializer {
                 });
 
             } catch (Exception e) {
-                e.printStackTrace();
+                LOGGER.error("Unable to query GLSL version", e);
             }
 
             if (result != null) {
@@ -105,13 +105,17 @@ public class GlslInitializer {
     }
 
     public static void destroy() {
-        synchronized (lock) {
-            if (initialized) {
-                GlslPlatform.runOnGlThread(() -> {
-                    debugProc.free();
-                    glfwDestroyWindow(window);
-                });
+        try {
+            synchronized (lock) {
+                if (initialized) {
+                    GlslPlatform.runOnGlThread(() -> {
+                        debugProc.free();
+                        glfwDestroyWindow(window);
+                    });
+                }
             }
+        } catch (Exception e) {
+            LOGGER.error("Unable to initialize GLSL plugin", e);
         }
     }
 

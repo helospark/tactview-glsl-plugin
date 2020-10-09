@@ -7,7 +7,7 @@ public class GlTransitionsPreprocessor {
 
     public String preprocess(String content) {
         String uniforms = ""
-                + "#version 130\n"
+                + "#version 110\n"
                 + "\n"
                 + "uniform sampler2D fromImage;\n" +
                 "uniform sampler2D toImage;\n" +

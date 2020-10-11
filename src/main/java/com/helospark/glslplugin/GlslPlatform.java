@@ -11,7 +11,7 @@ public class GlslPlatform {
         try {
             GL_EXECUTOR.submit(runnable).get();
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
         }
     }
 

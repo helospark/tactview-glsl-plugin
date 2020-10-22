@@ -72,7 +72,7 @@ public class ResourceList {
                 fileName = fileName.substring(lastSlash + 1);
             }
 
-            if (accept) {
+            if (accept && fileName.length() > 0) {
                 retval.add(fileName);
             }
         }

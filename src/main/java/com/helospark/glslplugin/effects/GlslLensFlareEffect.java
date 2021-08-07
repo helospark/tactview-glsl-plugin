@@ -94,7 +94,7 @@ public class GlslLensFlareEffect extends StatelessVideoEffect {
     public GlslLensFlareEffect(StatelessVideoEffect effect, CloneRequestMetadata cloneRequestMetadata) {
         super(effect, cloneRequestMetadata);
 
-        ReflectionUtil.copyOrCloneFieldFromTo(effect, this);
+        ReflectionUtil.copyOrCloneFieldFromTo(effect, this, cloneRequestMetadata);
     }
 
     @Override
@@ -216,7 +216,7 @@ public class GlslLensFlareEffect extends StatelessVideoEffect {
 
     protected void render(int programId) {
         int[] attachments = {GL31.GL_COLOR_ATTACHMENT1};
-        GL11.glClearColor(0.0f, 1.0f, 0.0f, 1.0f);;
+        GL11.glClearColor(0.0f, 1.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
         GL31.glDrawBuffers(attachments);

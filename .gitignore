@@ -30,3 +30,8 @@ dependency-reduced-pom.xml
 *.out
 *.exe
 src/main/resources/shaders/gl-transitions/
+
+# Eclipse
+.classpath
+.project
+.settings

@@ -48,7 +48,7 @@ public class GlslNightVisionEffect extends AbstractRegularGlslStatelessVideoEffe
     public GlslNightVisionEffect(StatelessVideoEffect effect, CloneRequestMetadata cloneRequestMetadata) {
         super(effect, cloneRequestMetadata);
 
-        ReflectionUtil.copyOrCloneFieldFromTo(effect, this);
+        ReflectionUtil.copyOrCloneFieldFromTo(effect, this, cloneRequestMetadata);
     }
 
     @Override

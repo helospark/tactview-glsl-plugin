@@ -54,7 +54,7 @@ public class GlslGlitchImageEffect extends AbstractRegularGlslStatelessVideoEffe
     public GlslGlitchImageEffect(StatelessVideoEffect effect, CloneRequestMetadata cloneRequestMetadata) {
         super(effect, cloneRequestMetadata);
 
-        ReflectionUtil.copyOrCloneFieldFromTo(effect, this);
+        ReflectionUtil.copyOrCloneFieldFromTo(effect, this, cloneRequestMetadata);
     }
 
     @Override

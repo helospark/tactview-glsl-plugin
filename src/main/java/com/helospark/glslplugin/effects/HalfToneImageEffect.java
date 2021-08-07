@@ -37,7 +37,7 @@ public class HalfToneImageEffect extends AbstractRegularGlslStatelessVideoEffect
     public HalfToneImageEffect(StatelessVideoEffect effect, CloneRequestMetadata cloneRequestMetadata) {
         super(effect, cloneRequestMetadata);
 
-        ReflectionUtil.copyOrCloneFieldFromTo(effect, this);
+        ReflectionUtil.copyOrCloneFieldFromTo(effect, this, cloneRequestMetadata);
     }
 
     @Override

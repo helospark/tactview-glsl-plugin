@@ -44,7 +44,7 @@ public class GlslRainEffect extends AbstractRegularGlslStatelessVideoEffect {
     public GlslRainEffect(StatelessVideoEffect effect, CloneRequestMetadata cloneRequestMetadata) {
         super(effect, cloneRequestMetadata);
 
-        ReflectionUtil.copyOrCloneFieldFromTo(effect, this);
+        ReflectionUtil.copyOrCloneFieldFromTo(effect, this, cloneRequestMetadata);
     }
 
     @Override

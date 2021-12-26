@@ -10,7 +10,6 @@ import com.helospark.glslplugin.util.VertexBufferProvider;
 import com.helospark.tactview.core.clone.CloneRequestMetadata;
 import com.helospark.tactview.core.save.LoadMetadata;
 import com.helospark.tactview.core.timeline.StatelessEffect;
-import com.helospark.tactview.core.timeline.StatelessVideoEffect;
 import com.helospark.tactview.core.timeline.TimelineInterval;
 import com.helospark.tactview.core.timeline.TimelinePosition;
 import com.helospark.tactview.core.timeline.effect.StatelessEffectRequest;
@@ -51,11 +50,13 @@ public class GlslFilmEffect extends AbstractRegularGlslStatelessVideoEffect {
         this.uniformUtil = uniformUtil;
     }
 
-    public GlslFilmEffect(JsonNode node, LoadMetadata loadMetadata) {
-        super(node, loadMetadata);
+    public GlslFilmEffect(JsonNode node, LoadMetadata loadMetadata, GlslUtil glslUtil, RenderBufferProvider renderBufferProvider, VertexBufferProvider vertexBufferProvider,
+            UniformUtil uniformUtil) {
+        super(node, loadMetadata, glslUtil, renderBufferProvider, vertexBufferProvider);
+        this.uniformUtil = uniformUtil;
     }
 
-    public GlslFilmEffect(StatelessVideoEffect effect, CloneRequestMetadata cloneRequestMetadata) {
+    public GlslFilmEffect(GlslFilmEffect effect, CloneRequestMetadata cloneRequestMetadata) {
         super(effect, cloneRequestMetadata);
 
         ReflectionUtil.copyOrCloneFieldFromTo(effect, this, cloneRequestMetadata);
@@ -145,7 +146,8 @@ public class GlslFilmEffect extends AbstractRegularGlslStatelessVideoEffect {
                 .withName("tolerance")
                 .build();
         return List.of(grainamountDescriptor, coloredDescriptor, coloramountDescriptor, grainsizeDescriptor, lumamountDescriptor, kDescriptor, kcubeDescriptor,
-                scaleDescriptor, dispersionDescriptor, blurEnabledDescriptor, blurAmountDescriptor, scratchesDescriptor, burnDescriptor, vignettesizeDescriptor, toleranceDescriptor);
+                scaleDescriptor, dispersionDescriptor, blurEnabledDescriptor, blurAmountDescriptor, scratchesDescriptor, burnDescriptor, vignettesizeDescriptor,
+                toleranceDescriptor);
     }
 
     @Override
@@ -153,7 +155,8 @@ public class GlslFilmEffect extends AbstractRegularGlslStatelessVideoEffect {
         super.bindUniforms(programId, request);
         TimelinePosition requestPosition = request.getEffectPosition();
         uniformUtil.bindFloatToUniform(programId, request.getEffectPosition().getSeconds().floatValue(), "timer");
-        uniformUtil.bindVec2ToUniform(programId, request.getCurrentFrame().getWidth() / request.getScale(), request.getCurrentFrame().getHeight() / request.getScale(), "resolution");
+        uniformUtil.bindVec2ToUniform(programId, request.getCurrentFrame().getWidth() / request.getScale(), request.getCurrentFrame().getHeight() / request.getScale(),
+                "resolution");
 
         uniformUtil.bindDoubleProviderToUniform(programId, grainamount, requestPosition, "grainamount");
         uniformUtil.bindBooleanProviderToUniform(programId, colored, requestPosition, "colored");

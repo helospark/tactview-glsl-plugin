@@ -11,7 +11,6 @@ import com.helospark.glslplugin.util.VertexBufferProvider;
 import com.helospark.tactview.core.clone.CloneRequestMetadata;
 import com.helospark.tactview.core.save.LoadMetadata;
 import com.helospark.tactview.core.timeline.StatelessEffect;
-import com.helospark.tactview.core.timeline.StatelessVideoEffect;
 import com.helospark.tactview.core.timeline.TimelineInterval;
 import com.helospark.tactview.core.timeline.effect.StatelessEffectRequest;
 import com.helospark.tactview.core.timeline.effect.interpolation.ValueProviderDescriptor;
@@ -41,11 +40,14 @@ public class GlslNightVisionEffect extends AbstractRegularGlslStatelessVideoEffe
         this.fragmentShader = "shadertoy:shaders/fun/nightvision.fs";
     }
 
-    public GlslNightVisionEffect(JsonNode node, LoadMetadata loadMetadata) {
-        super(node, loadMetadata);
+    public GlslNightVisionEffect(JsonNode node, LoadMetadata loadMetadata, GlslUtil glslUtil, RenderBufferProvider renderBufferProvider, VertexBufferProvider vertexBufferProvider,
+            ShadertoyHelpers shadertoyHelpers, UniformUtil uniformUtil) {
+        super(node, loadMetadata, glslUtil, renderBufferProvider, vertexBufferProvider);
+        this.shadertoyHelpers = shadertoyHelpers;
+        this.uniformUtil = uniformUtil;
     }
 
-    public GlslNightVisionEffect(StatelessVideoEffect effect, CloneRequestMetadata cloneRequestMetadata) {
+    public GlslNightVisionEffect(GlslNightVisionEffect effect, CloneRequestMetadata cloneRequestMetadata) {
         super(effect, cloneRequestMetadata);
 
         ReflectionUtil.copyOrCloneFieldFromTo(effect, this, cloneRequestMetadata);

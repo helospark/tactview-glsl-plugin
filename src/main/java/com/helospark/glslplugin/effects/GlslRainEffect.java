@@ -10,7 +10,6 @@ import com.helospark.glslplugin.util.VertexBufferProvider;
 import com.helospark.tactview.core.clone.CloneRequestMetadata;
 import com.helospark.tactview.core.save.LoadMetadata;
 import com.helospark.tactview.core.timeline.StatelessEffect;
-import com.helospark.tactview.core.timeline.StatelessVideoEffect;
 import com.helospark.tactview.core.timeline.TimelineInterval;
 import com.helospark.tactview.core.timeline.effect.StatelessEffectRequest;
 import com.helospark.tactview.core.timeline.effect.interpolation.ValueProviderDescriptor;
@@ -37,11 +36,13 @@ public class GlslRainEffect extends AbstractRegularGlslStatelessVideoEffect {
         this.fragmentShader = "shadertoy:shaders/rain/raindrops_flowing.fs";
     }
 
-    public GlslRainEffect(JsonNode node, LoadMetadata loadMetadata) {
-        super(node, loadMetadata);
+    public GlslRainEffect(JsonNode node, LoadMetadata loadMetadata, GlslUtil glslUtil, RenderBufferProvider renderBufferProvider, VertexBufferProvider vertexBufferProvider,
+            ShadertoyHelpers shadertoyHelpers) {
+        super(node, loadMetadata, glslUtil, renderBufferProvider, vertexBufferProvider);
+        this.shadertoyHelpers = shadertoyHelpers;
     }
 
-    public GlslRainEffect(StatelessVideoEffect effect, CloneRequestMetadata cloneRequestMetadata) {
+    public GlslRainEffect(GlslRainEffect effect, CloneRequestMetadata cloneRequestMetadata) {
         super(effect, cloneRequestMetadata);
 
         ReflectionUtil.copyOrCloneFieldFromTo(effect, this, cloneRequestMetadata);

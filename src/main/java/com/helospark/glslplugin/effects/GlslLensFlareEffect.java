@@ -48,6 +48,8 @@ import com.helospark.tactview.core.util.ReflectionUtil;
 // https://john-chapman-graphics.blogspot.com/2013/02/pseudo-lens-flare.html
 // https://github.com/jeromeetienne/threex.sslensflare
 public class GlslLensFlareEffect extends StatelessVideoEffect {
+    private static final double SCALE = 1.0;
+
     protected RenderBufferProvider renderBufferProvider;
     protected VertexBufferProvider vertexBufferProvider;
     protected GlslUtil glslUtil;
@@ -57,7 +59,6 @@ public class GlslLensFlareEffect extends StatelessVideoEffect {
     int tex;
     int firstPhaseOutputTexture;
     int secondPhaseOutputTexture;
-    double scale = 1.0;
 
     private DoubleProvider scaleProvider;
 
@@ -87,14 +88,28 @@ public class GlslLensFlareEffect extends StatelessVideoEffect {
         this.textureLoader = textureLoader;
     }
 
-    public GlslLensFlareEffect(JsonNode node, LoadMetadata loadMetadata) {
+    public GlslLensFlareEffect(JsonNode node, LoadMetadata loadMetadata, RenderBufferProvider renderBufferProvider, VertexBufferProvider vertexBufferProvider,
+            GlslUtil glslUtil, UniformUtil uniformUtil, TextureLoader textureLoader) {
         super(node, loadMetadata);
+        this.glslUtil = glslUtil;
+        this.vertexBufferProvider = vertexBufferProvider;
+        this.renderBufferProvider = renderBufferProvider;
+        this.uniformUtil = uniformUtil;
+        this.textureLoader = textureLoader;
+
+        tex = GlslPlatform.runOnGlThread(() -> createTexture());
+        firstPhaseOutputTexture = GlslPlatform.runOnGlThread(() -> createTexture());
+        secondPhaseOutputTexture = GlslPlatform.runOnGlThread(() -> createTexture());
     }
 
     public GlslLensFlareEffect(StatelessVideoEffect effect, CloneRequestMetadata cloneRequestMetadata) {
         super(effect, cloneRequestMetadata);
 
         ReflectionUtil.copyOrCloneFieldFromTo(effect, this, cloneRequestMetadata);
+
+        tex = GlslPlatform.runOnGlThread(() -> createTexture());
+        firstPhaseOutputTexture = GlslPlatform.runOnGlThread(() -> createTexture());
+        secondPhaseOutputTexture = GlslPlatform.runOnGlThread(() -> createTexture());
     }
 
     @Override
@@ -108,9 +123,9 @@ public class GlslLensFlareEffect extends StatelessVideoEffect {
             // first phase
             int programId = glslUtil.useProgram("shaders/lensflare/scale-pass.vs", "shaders/lensflare/flare-first-pass.fs");
             GL31.glUseProgram(programId);
-            int downSampledWidth = (int) (width * scale);
-            int downSampledHeight = (int) (height * scale);
-            glBindTexture(GL31.GL_TEXTURE_2D, firstPhaseOutputTexture); // output 
+            int downSampledWidth = (int) (width * SCALE);
+            int downSampledHeight = (int) (height * SCALE);
+            glBindTexture(GL31.GL_TEXTURE_2D, firstPhaseOutputTexture); // output
             glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, downSampledWidth, downSampledHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
 
             Integer renderbuffer = renderBufferProvider.getFrameBufferAttachedTexture(firstPhaseOutputTexture, GL31.GL_COLOR_ATTACHMENT1);
@@ -215,7 +230,7 @@ public class GlslLensFlareEffect extends StatelessVideoEffect {
     }
 
     protected void render(int programId) {
-        int[] attachments = {GL31.GL_COLOR_ATTACHMENT1};
+        int[] attachments = { GL31.GL_COLOR_ATTACHMENT1 };
         GL11.glClearColor(0.0f, 1.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
@@ -287,7 +302,8 @@ public class GlslLensFlareEffect extends StatelessVideoEffect {
                 .withKeyframeableEffect(effectStrengthProvider)
                 .withName("Strength")
                 .build();
-        return List.of(scaleProviderDescriptor, multiplierDescriptor, highlightBiasProviderDescriptor, distanceFalloffProviderDescriptor, haloWidthProviderDescriptor, haloDistortionProviderDescriptor,
+        return List.of(scaleProviderDescriptor, multiplierDescriptor, highlightBiasProviderDescriptor, distanceFalloffProviderDescriptor, haloWidthProviderDescriptor,
+                haloDistortionProviderDescriptor,
                 ghostDispersalProviderDescriptor, maxGhostsProviderDescriptor, artifactScaleProviderDescriptor, effectStrengthDescriptor);
     }
 

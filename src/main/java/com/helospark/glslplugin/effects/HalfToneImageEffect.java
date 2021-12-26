@@ -10,7 +10,6 @@ import com.helospark.glslplugin.util.VertexBufferProvider;
 import com.helospark.tactview.core.clone.CloneRequestMetadata;
 import com.helospark.tactview.core.save.LoadMetadata;
 import com.helospark.tactview.core.timeline.StatelessEffect;
-import com.helospark.tactview.core.timeline.StatelessVideoEffect;
 import com.helospark.tactview.core.timeline.TimelineInterval;
 import com.helospark.tactview.core.timeline.effect.StatelessEffectRequest;
 import com.helospark.tactview.core.timeline.effect.interpolation.ValueProviderDescriptor;
@@ -30,11 +29,13 @@ public class HalfToneImageEffect extends AbstractRegularGlslStatelessVideoEffect
         this.fragmentShader = "shadertoy:shaders/halftone/halftone.fs";
     }
 
-    public HalfToneImageEffect(JsonNode node, LoadMetadata loadMetadata) {
-        super(node, loadMetadata);
+    public HalfToneImageEffect(JsonNode node, LoadMetadata loadMetadata, GlslUtil glslUtil, RenderBufferProvider renderBufferProvider, VertexBufferProvider vertexBufferProvider,
+            ShadertoyHelpers shadertoyHelpers) {
+        super(node, loadMetadata, glslUtil, renderBufferProvider, vertexBufferProvider);
+        this.shadertoyHelpers = shadertoyHelpers;
     }
 
-    public HalfToneImageEffect(StatelessVideoEffect effect, CloneRequestMetadata cloneRequestMetadata) {
+    public HalfToneImageEffect(HalfToneImageEffect effect, CloneRequestMetadata cloneRequestMetadata) {
         super(effect, cloneRequestMetadata);
 
         ReflectionUtil.copyOrCloneFieldFromTo(effect, this, cloneRequestMetadata);

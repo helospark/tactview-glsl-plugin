@@ -7,6 +7,7 @@ import static org.lwjgl.opengl.GL11.glDisable;
 import static org.lwjgl.opengl.GL20.glUseProgram;
 
 import java.util.List;
+import java.util.Map;
 
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL31;
@@ -19,12 +20,14 @@ import com.helospark.glslplugin.util.RenderBufferProvider;
 import com.helospark.glslplugin.util.VertexBufferProvider;
 import com.helospark.tactview.core.clone.CloneRequestMetadata;
 import com.helospark.tactview.core.save.LoadMetadata;
+import com.helospark.tactview.core.save.SaveMetadata;
 import com.helospark.tactview.core.timeline.StatelessVideoEffect;
 import com.helospark.tactview.core.timeline.TimelineInterval;
 import com.helospark.tactview.core.timeline.effect.StatelessEffectRequest;
 import com.helospark.tactview.core.timeline.effect.interpolation.ValueProviderDescriptor;
 import com.helospark.tactview.core.timeline.image.ClipImage;
 import com.helospark.tactview.core.timeline.image.ReadOnlyClipImage;
+import com.helospark.tactview.core.util.ReflectionUtil;
 
 public abstract class AbstractRegularGlslStatelessVideoEffect extends StatelessVideoEffect {
     protected String vertexShader;
@@ -44,12 +47,28 @@ public abstract class AbstractRegularGlslStatelessVideoEffect extends StatelessV
         this.glslUtil = glslUtil;
     }
 
-    public AbstractRegularGlslStatelessVideoEffect(JsonNode node, LoadMetadata loadMetadata) {
+    public AbstractRegularGlslStatelessVideoEffect(JsonNode node, LoadMetadata loadMetadata, GlslUtil glslUtil, RenderBufferProvider renderBufferProvider,
+            VertexBufferProvider vertexBufferProvider) {
         super(node, loadMetadata);
+        vertexShader = node.get("vertexShader").asText();
+        fragmentShader = node.get("fragmentShader").asText();
+
+        this.glslUtil = glslUtil;
+        this.vertexBufferProvider = vertexBufferProvider;
+        this.renderBufferProvider = renderBufferProvider;
     }
 
-    public AbstractRegularGlslStatelessVideoEffect(StatelessVideoEffect effect, CloneRequestMetadata cloneRequestMetadata) {
+    public AbstractRegularGlslStatelessVideoEffect(AbstractRegularGlslStatelessVideoEffect effect, CloneRequestMetadata cloneRequestMetadata) {
         super(effect, cloneRequestMetadata);
+
+        ReflectionUtil.copyOrCloneFieldFromTo(effect, this, AbstractRegularGlslStatelessVideoEffect.class, cloneRequestMetadata);
+    }
+
+    @Override
+    protected void generateSavedContentInternal(Map<String, Object> result, SaveMetadata saveMetadata) {
+        super.generateSavedContentInternal(result, saveMetadata);
+        result.put("vertexShader", vertexShader);
+        result.put("fragmentShader", fragmentShader);
     }
 
     @Override

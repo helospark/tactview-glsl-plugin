@@ -10,7 +10,6 @@ import com.helospark.glslplugin.util.VertexBufferProvider;
 import com.helospark.tactview.core.clone.CloneRequestMetadata;
 import com.helospark.tactview.core.save.LoadMetadata;
 import com.helospark.tactview.core.timeline.StatelessEffect;
-import com.helospark.tactview.core.timeline.StatelessVideoEffect;
 import com.helospark.tactview.core.timeline.TimelineInterval;
 import com.helospark.tactview.core.timeline.effect.StatelessEffectRequest;
 import com.helospark.tactview.core.timeline.effect.interpolation.ValueProviderDescriptor;
@@ -47,11 +46,13 @@ public class GlslGlitchImageEffect extends AbstractRegularGlslStatelessVideoEffe
         this.fragmentShader = "shadertoy:shaders/glitch/digitalglitch.fs";
     }
 
-    public GlslGlitchImageEffect(JsonNode node, LoadMetadata loadMetadata) {
-        super(node, loadMetadata);
+    public GlslGlitchImageEffect(JsonNode node, LoadMetadata loadMetadata, GlslUtil glslUtil, RenderBufferProvider renderBufferProvider, VertexBufferProvider vertexBufferProvider,
+            ShadertoyHelpers shadertoyHelpers) {
+        super(node, loadMetadata, glslUtil, renderBufferProvider, vertexBufferProvider);
+        this.shadertoyHelpers = shadertoyHelpers;
     }
 
-    public GlslGlitchImageEffect(StatelessVideoEffect effect, CloneRequestMetadata cloneRequestMetadata) {
+    public GlslGlitchImageEffect(GlslGlitchImageEffect effect, CloneRequestMetadata cloneRequestMetadata) {
         super(effect, cloneRequestMetadata);
 
         ReflectionUtil.copyOrCloneFieldFromTo(effect, this, cloneRequestMetadata);

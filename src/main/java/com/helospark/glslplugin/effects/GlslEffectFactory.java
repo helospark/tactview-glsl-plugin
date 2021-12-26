@@ -27,8 +27,9 @@ public class GlslEffectFactory {
     public StandardEffectFactory glslFilmEffect(GlslUtil glslUtil, RenderBufferProvider renderBufferProvider, VertexBufferProvider vertexBufferProvider, UniformUtil uniformUtil) {
         return StandardEffectFactory.builder()
                 .withFactory(
-                        request -> new GlslFilmEffect(new TimelineInterval(request.getPosition(), TimelineLength.ofMillis(5000)), glslUtil, renderBufferProvider, vertexBufferProvider, uniformUtil))
-                .withRestoreFactory((node, loadMetadata) -> new GlslFilmEffect(node, loadMetadata))
+                        request -> new GlslFilmEffect(new TimelineInterval(request.getPosition(), TimelineLength.ofMillis(5000)), glslUtil, renderBufferProvider,
+                                vertexBufferProvider, uniformUtil))
+                .withRestoreFactory((node, loadMetadata) -> new GlslFilmEffect(node, loadMetadata, glslUtil, renderBufferProvider, vertexBufferProvider, uniformUtil))
                 .withName("Film effects")
                 .withSupportedEffectId("glslfilm")
                 .withSupportedClipTypes(List.of(TimelineClipType.VIDEO, TimelineClipType.IMAGE))
@@ -37,12 +38,15 @@ public class GlslEffectFactory {
     }
 
     @Bean
-    public StandardEffectFactory glslLensFlareEffect(GlslUtil glslUtil, RenderBufferProvider renderBufferProvider, VertexBufferProvider vertexBufferProvider, UniformUtil uniformUtil,
+    public StandardEffectFactory glslLensFlareEffect(GlslUtil glslUtil, RenderBufferProvider renderBufferProvider, VertexBufferProvider vertexBufferProvider,
+            UniformUtil uniformUtil,
             TextureLoader textureLoader) {
         return StandardEffectFactory.builder()
-                .withFactory(request -> new GlslLensFlareEffect(new TimelineInterval(request.getPosition(), TimelineLength.ofMillis(5000)), glslUtil, renderBufferProvider, vertexBufferProvider,
+                .withFactory(request -> new GlslLensFlareEffect(new TimelineInterval(request.getPosition(), TimelineLength.ofMillis(5000)), glslUtil, renderBufferProvider,
+                        vertexBufferProvider,
                         uniformUtil, textureLoader))
-                .withRestoreFactory((node, loadMetadata) -> new GlslLensFlareEffect(node, loadMetadata))
+                .withRestoreFactory((node, loadMetadata) -> new GlslLensFlareEffect(node, loadMetadata, renderBufferProvider, vertexBufferProvider, glslUtil,
+                        uniformUtil, textureLoader))
                 .withName("Lens flare")
                 .withSupportedEffectId("glsllensflare")
                 .withSupportedClipTypes(List.of(TimelineClipType.VIDEO, TimelineClipType.IMAGE))
@@ -51,11 +55,13 @@ public class GlslEffectFactory {
     }
 
     @Bean
-    public StandardEffectFactory glslGlitchEffect(GlslUtil glslUtil, RenderBufferProvider renderBufferProvider, VertexBufferProvider vertexBufferProvider, ShadertoyHelpers shadertoyHelpers) {
+    public StandardEffectFactory glslGlitchEffect(GlslUtil glslUtil, RenderBufferProvider renderBufferProvider, VertexBufferProvider vertexBufferProvider,
+            ShadertoyHelpers shadertoyHelpers) {
         return StandardEffectFactory.builder()
-                .withFactory(request -> new GlslGlitchImageEffect(new TimelineInterval(request.getPosition(), TimelineLength.ofMillis(5000)), glslUtil, renderBufferProvider, vertexBufferProvider,
+                .withFactory(request -> new GlslGlitchImageEffect(new TimelineInterval(request.getPosition(), TimelineLength.ofMillis(5000)), glslUtil, renderBufferProvider,
+                        vertexBufferProvider,
                         shadertoyHelpers))
-                .withRestoreFactory((node, loadMetadata) -> new GlslGlitchImageEffect(node, loadMetadata))
+                .withRestoreFactory((node, loadMetadata) -> new GlslGlitchImageEffect(node, loadMetadata, glslUtil, renderBufferProvider, vertexBufferProvider, shadertoyHelpers))
                 .withName("Glitch")
                 .withSupportedEffectId("glslglitch")
                 .withSupportedClipTypes(List.of(TimelineClipType.VIDEO, TimelineClipType.IMAGE))
@@ -64,11 +70,13 @@ public class GlslEffectFactory {
     }
 
     @Bean
-    public StandardEffectFactory glslTvEffect(GlslUtil glslUtil, RenderBufferProvider renderBufferProvider, VertexBufferProvider vertexBufferProvider, ShadertoyHelpers shadertoyHelpers) {
+    public StandardEffectFactory glslTvEffect(GlslUtil glslUtil, RenderBufferProvider renderBufferProvider, VertexBufferProvider vertexBufferProvider,
+            ShadertoyHelpers shadertoyHelpers) {
         return StandardEffectFactory.builder()
-                .withFactory(request -> new GlslTvEffect(new TimelineInterval(request.getPosition(), TimelineLength.ofMillis(5000)), glslUtil, renderBufferProvider, vertexBufferProvider,
+                .withFactory(request -> new GlslTvEffect(new TimelineInterval(request.getPosition(), TimelineLength.ofMillis(5000)), glslUtil, renderBufferProvider,
+                        vertexBufferProvider,
                         shadertoyHelpers))
-                .withRestoreFactory((node, loadMetadata) -> new GlslTvEffect(node, loadMetadata))
+                .withRestoreFactory((node, loadMetadata) -> new GlslTvEffect(node, loadMetadata, glslUtil, renderBufferProvider, vertexBufferProvider, shadertoyHelpers))
                 .withName("TV effects")
                 .withSupportedEffectId("glsltv")
                 .withSupportedClipTypes(List.of(TimelineClipType.VIDEO, TimelineClipType.IMAGE))
@@ -77,11 +85,13 @@ public class GlslEffectFactory {
     }
 
     @Bean
-    public StandardEffectFactory glslOldFilmEffect(GlslUtil glslUtil, RenderBufferProvider renderBufferProvider, VertexBufferProvider vertexBufferProvider, ShadertoyHelpers shadertoyHelpers) {
+    public StandardEffectFactory glslOldFilmEffect(GlslUtil glslUtil, RenderBufferProvider renderBufferProvider, VertexBufferProvider vertexBufferProvider,
+            ShadertoyHelpers shadertoyHelpers) {
         return StandardEffectFactory.builder()
-                .withFactory(request -> new GlslOldFilmEffect(new TimelineInterval(request.getPosition(), TimelineLength.ofMillis(5000)), glslUtil, renderBufferProvider, vertexBufferProvider,
+                .withFactory(request -> new GlslOldFilmEffect(new TimelineInterval(request.getPosition(), TimelineLength.ofMillis(5000)), glslUtil, renderBufferProvider,
+                        vertexBufferProvider,
                         shadertoyHelpers))
-                .withRestoreFactory((node, loadMetadata) -> new GlslOldFilmEffect(node, loadMetadata))
+                .withRestoreFactory((node, loadMetadata) -> new GlslOldFilmEffect(node, loadMetadata, glslUtil, renderBufferProvider, vertexBufferProvider, shadertoyHelpers))
                 .withName("Old film")
                 .withSupportedEffectId("glsloldfilm")
                 .withSupportedClipTypes(List.of(TimelineClipType.VIDEO, TimelineClipType.IMAGE))
@@ -90,11 +100,13 @@ public class GlslEffectFactory {
     }
 
     @Bean
-    public StandardEffectFactory glslFadedImageEffect(GlslUtil glslUtil, RenderBufferProvider renderBufferProvider, VertexBufferProvider vertexBufferProvider, ShadertoyHelpers shadertoyHelpers) {
+    public StandardEffectFactory glslFadedImageEffect(GlslUtil glslUtil, RenderBufferProvider renderBufferProvider, VertexBufferProvider vertexBufferProvider,
+            ShadertoyHelpers shadertoyHelpers) {
         return StandardEffectFactory.builder()
-                .withFactory(request -> new FadedImageEffect(new TimelineInterval(request.getPosition(), TimelineLength.ofMillis(5000)), glslUtil, renderBufferProvider, vertexBufferProvider,
+                .withFactory(request -> new FadedImageEffect(new TimelineInterval(request.getPosition(), TimelineLength.ofMillis(5000)), glslUtil, renderBufferProvider,
+                        vertexBufferProvider,
                         shadertoyHelpers))
-                .withRestoreFactory((node, loadMetadata) -> new FadedImageEffect(node, loadMetadata))
+                .withRestoreFactory((node, loadMetadata) -> new FadedImageEffect(node, loadMetadata, glslUtil, renderBufferProvider, vertexBufferProvider, shadertoyHelpers))
                 .withName("Faded image")
                 .withSupportedEffectId("glslfaded")
                 .withSupportedClipTypes(List.of(TimelineClipType.VIDEO, TimelineClipType.IMAGE))
@@ -103,11 +115,13 @@ public class GlslEffectFactory {
     }
 
     @Bean
-    public StandardEffectFactory halftoneImageEffect(GlslUtil glslUtil, RenderBufferProvider renderBufferProvider, VertexBufferProvider vertexBufferProvider, ShadertoyHelpers shadertoyHelpers) {
+    public StandardEffectFactory halftoneImageEffect(GlslUtil glslUtil, RenderBufferProvider renderBufferProvider, VertexBufferProvider vertexBufferProvider,
+            ShadertoyHelpers shadertoyHelpers) {
         return StandardEffectFactory.builder()
-                .withFactory(request -> new HalfToneImageEffect(new TimelineInterval(request.getPosition(), TimelineLength.ofMillis(5000)), glslUtil, renderBufferProvider, vertexBufferProvider,
+                .withFactory(request -> new HalfToneImageEffect(new TimelineInterval(request.getPosition(), TimelineLength.ofMillis(5000)), glslUtil, renderBufferProvider,
+                        vertexBufferProvider,
                         shadertoyHelpers))
-                .withRestoreFactory((node, loadMetadata) -> new HalfToneImageEffect(node, loadMetadata))
+                .withRestoreFactory((node, loadMetadata) -> new HalfToneImageEffect(node, loadMetadata, glslUtil, renderBufferProvider, vertexBufferProvider, shadertoyHelpers))
                 .withName("Half tone")
                 .withSupportedEffectId("glslhalftone")
                 .withSupportedClipTypes(List.of(TimelineClipType.VIDEO, TimelineClipType.IMAGE))
@@ -116,11 +130,13 @@ public class GlslEffectFactory {
     }
 
     @Bean
-    public StandardEffectFactory glslRainEffect(GlslUtil glslUtil, RenderBufferProvider renderBufferProvider, VertexBufferProvider vertexBufferProvider, ShadertoyHelpers shadertoyHelpers) {
+    public StandardEffectFactory glslRainEffect(GlslUtil glslUtil, RenderBufferProvider renderBufferProvider, VertexBufferProvider vertexBufferProvider,
+            ShadertoyHelpers shadertoyHelpers) {
         return StandardEffectFactory.builder()
-                .withFactory(request -> new GlslRainEffect(new TimelineInterval(request.getPosition(), TimelineLength.ofMillis(5000)), glslUtil, renderBufferProvider, vertexBufferProvider,
+                .withFactory(request -> new GlslRainEffect(new TimelineInterval(request.getPosition(), TimelineLength.ofMillis(5000)), glslUtil, renderBufferProvider,
+                        vertexBufferProvider,
                         shadertoyHelpers))
-                .withRestoreFactory((node, loadMetadata) -> new GlslRainEffect(node, loadMetadata))
+                .withRestoreFactory((node, loadMetadata) -> new GlslRainEffect(node, loadMetadata, glslUtil, renderBufferProvider, vertexBufferProvider, shadertoyHelpers))
                 .withName("Rain")
                 .withSupportedEffectId("glslrain")
                 .withSupportedClipTypes(List.of(TimelineClipType.VIDEO, TimelineClipType.IMAGE))
@@ -129,13 +145,16 @@ public class GlslEffectFactory {
     }
 
     @Bean
-    public StandardEffectFactory glslBarrelBlurEffect(GlslUtil glslUtil, RenderBufferProvider renderBufferProvider, VertexBufferProvider vertexBufferProvider, ShadertoyHelpers shadertoyHelpers,
+    public StandardEffectFactory glslBarrelBlurEffect(GlslUtil glslUtil, RenderBufferProvider renderBufferProvider, VertexBufferProvider vertexBufferProvider,
+            ShadertoyHelpers shadertoyHelpers,
             UniformUtil uniformUtil) {
         return StandardEffectFactory.builder()
                 .withFactory(
-                        request -> new GlslBarrelBlurEffect(new TimelineInterval(request.getPosition(), TimelineLength.ofMillis(5000)), glslUtil, renderBufferProvider, vertexBufferProvider,
+                        request -> new GlslBarrelBlurEffect(new TimelineInterval(request.getPosition(), TimelineLength.ofMillis(5000)), glslUtil, renderBufferProvider,
+                                vertexBufferProvider,
                                 uniformUtil, shadertoyHelpers))
-                .withRestoreFactory((node, loadMetadata) -> new GlslBarrelBlurEffect(node, loadMetadata))
+                .withRestoreFactory(
+                        (node, loadMetadata) -> new GlslBarrelBlurEffect(node, loadMetadata, glslUtil, renderBufferProvider, vertexBufferProvider, uniformUtil, shadertoyHelpers))
                 .withName("Barrel chroma blur")
                 .withSupportedEffectId("glslbarrelchromablur")
                 .withSupportedClipTypes(List.of(TimelineClipType.VIDEO, TimelineClipType.IMAGE))
@@ -144,13 +163,16 @@ public class GlslEffectFactory {
     }
 
     @Bean
-    public StandardEffectFactory glslDrunkEffect(GlslUtil glslUtil, RenderBufferProvider renderBufferProvider, VertexBufferProvider vertexBufferProvider, ShadertoyHelpers shadertoyHelpers,
+    public StandardEffectFactory glslDrunkEffect(GlslUtil glslUtil, RenderBufferProvider renderBufferProvider, VertexBufferProvider vertexBufferProvider,
+            ShadertoyHelpers shadertoyHelpers,
             UniformUtil uniformUtil) {
         return StandardEffectFactory.builder()
                 .withFactory(
-                        request -> new GlslDrunkEffect(new TimelineInterval(request.getPosition(), TimelineLength.ofMillis(5000)), glslUtil, renderBufferProvider, vertexBufferProvider,
+                        request -> new GlslDrunkEffect(new TimelineInterval(request.getPosition(), TimelineLength.ofMillis(5000)), glslUtil, renderBufferProvider,
+                                vertexBufferProvider,
                                 shadertoyHelpers, uniformUtil))
-                .withRestoreFactory((node, loadMetadata) -> new GlslDrunkEffect(node, loadMetadata))
+                .withRestoreFactory(
+                        (node, loadMetadata) -> new GlslDrunkEffect(node, loadMetadata, glslUtil, renderBufferProvider, vertexBufferProvider, uniformUtil, shadertoyHelpers))
                 .withName("Drunk camera")
                 .withSupportedEffectId("glsldrunkeffect")
                 .withSupportedClipTypes(List.of(TimelineClipType.VIDEO, TimelineClipType.IMAGE))
@@ -159,13 +181,16 @@ public class GlslEffectFactory {
     }
 
     @Bean
-    public StandardEffectFactory glslMatrixRainEffect(GlslUtil glslUtil, RenderBufferProvider renderBufferProvider, VertexBufferProvider vertexBufferProvider, ShadertoyHelpers shadertoyHelpers,
+    public StandardEffectFactory glslMatrixRainEffect(GlslUtil glslUtil, RenderBufferProvider renderBufferProvider, VertexBufferProvider vertexBufferProvider,
+            ShadertoyHelpers shadertoyHelpers,
             UniformUtil uniformUtil) {
         return StandardEffectFactory.builder()
                 .withFactory(
-                        request -> new GlslMatrixRainEffect(new TimelineInterval(request.getPosition(), TimelineLength.ofMillis(5000)), glslUtil, renderBufferProvider, vertexBufferProvider,
+                        request -> new GlslMatrixRainEffect(new TimelineInterval(request.getPosition(), TimelineLength.ofMillis(5000)), glslUtil, renderBufferProvider,
+                                vertexBufferProvider,
                                 shadertoyHelpers, uniformUtil))
-                .withRestoreFactory((node, loadMetadata) -> new GlslMatrixRainEffect(node, loadMetadata))
+                .withRestoreFactory(
+                        (node, loadMetadata) -> new GlslMatrixRainEffect(node, loadMetadata, glslUtil, renderBufferProvider, vertexBufferProvider, shadertoyHelpers, uniformUtil))
                 .withName("Matrix rain")
                 .withSupportedEffectId("glslmatrixrain")
                 .withSupportedClipTypes(List.of(TimelineClipType.VIDEO, TimelineClipType.IMAGE))
@@ -174,13 +199,16 @@ public class GlslEffectFactory {
     }
 
     @Bean
-    public StandardEffectFactory glslNightvisionEffect(GlslUtil glslUtil, RenderBufferProvider renderBufferProvider, VertexBufferProvider vertexBufferProvider, ShadertoyHelpers shadertoyHelpers,
+    public StandardEffectFactory glslNightvisionEffect(GlslUtil glslUtil, RenderBufferProvider renderBufferProvider, VertexBufferProvider vertexBufferProvider,
+            ShadertoyHelpers shadertoyHelpers,
             UniformUtil uniformUtil) {
         return StandardEffectFactory.builder()
                 .withFactory(
-                        request -> new GlslNightVisionEffect(new TimelineInterval(request.getPosition(), TimelineLength.ofMillis(5000)), glslUtil, renderBufferProvider, vertexBufferProvider,
+                        request -> new GlslNightVisionEffect(new TimelineInterval(request.getPosition(), TimelineLength.ofMillis(5000)), glslUtil, renderBufferProvider,
+                                vertexBufferProvider,
                                 shadertoyHelpers, uniformUtil))
-                .withRestoreFactory((node, loadMetadata) -> new GlslNightVisionEffect(node, loadMetadata))
+                .withRestoreFactory(
+                        (node, loadMetadata) -> new GlslNightVisionEffect(node, loadMetadata, glslUtil, renderBufferProvider, vertexBufferProvider, shadertoyHelpers, uniformUtil))
                 .withName("Night vision")
                 .withSupportedEffectId("glslnightvision")
                 .withSupportedClipTypes(List.of(TimelineClipType.VIDEO, TimelineClipType.IMAGE))

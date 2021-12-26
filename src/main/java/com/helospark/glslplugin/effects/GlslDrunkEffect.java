@@ -11,7 +11,6 @@ import com.helospark.glslplugin.util.VertexBufferProvider;
 import com.helospark.tactview.core.clone.CloneRequestMetadata;
 import com.helospark.tactview.core.save.LoadMetadata;
 import com.helospark.tactview.core.timeline.StatelessEffect;
-import com.helospark.tactview.core.timeline.StatelessVideoEffect;
 import com.helospark.tactview.core.timeline.TimelineInterval;
 import com.helospark.tactview.core.timeline.effect.StatelessEffectRequest;
 import com.helospark.tactview.core.timeline.effect.interpolation.ValueProviderDescriptor;
@@ -22,13 +21,12 @@ import com.helospark.tactview.core.util.ReflectionUtil;
 // https://www.shadertoy.com/view/XtSBz1
 public class GlslDrunkEffect extends AbstractRegularGlslStatelessVideoEffect {
     private ShadertoyHelpers shadertoyHelpers;
+    private UniformUtil uniformUtil;
 
     private DoubleProvider speedProvider;
     private DoubleProvider vignetteStrengthProvider;
     private DoubleProvider wobbleMultiplierProvider;
     private DoubleProvider zoomAmountProvider;
-
-    private UniformUtil uniformUtil;
 
     public GlslDrunkEffect(TimelineInterval interval, GlslUtil glslUtil, RenderBufferProvider renderBufferProvider, VertexBufferProvider vertexBufferProvider,
             ShadertoyHelpers shadertoyHelpers, UniformUtil uniformUtil) {
@@ -41,11 +39,14 @@ public class GlslDrunkEffect extends AbstractRegularGlslStatelessVideoEffect {
         this.fragmentShader = "shadertoy:shaders/fun/drunk.fs";
     }
 
-    public GlslDrunkEffect(JsonNode node, LoadMetadata loadMetadata) {
-        super(node, loadMetadata);
+    public GlslDrunkEffect(JsonNode node, LoadMetadata loadMetadata, GlslUtil glslUtil, RenderBufferProvider renderBufferProvider, VertexBufferProvider vertexBufferProvider,
+            UniformUtil uniformUtil, ShadertoyHelpers shadertoyHelpers) {
+        super(node, loadMetadata, glslUtil, renderBufferProvider, vertexBufferProvider);
+        this.shadertoyHelpers = shadertoyHelpers;
+        this.uniformUtil = uniformUtil;
     }
 
-    public GlslDrunkEffect(StatelessVideoEffect effect, CloneRequestMetadata cloneRequestMetadata) {
+    public GlslDrunkEffect(GlslDrunkEffect effect, CloneRequestMetadata cloneRequestMetadata) {
         super(effect, cloneRequestMetadata);
 
         ReflectionUtil.copyOrCloneFieldFromTo(effect, this, cloneRequestMetadata);

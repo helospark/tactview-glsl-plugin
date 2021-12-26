@@ -11,7 +11,6 @@ import com.helospark.glslplugin.util.VertexBufferProvider;
 import com.helospark.tactview.core.clone.CloneRequestMetadata;
 import com.helospark.tactview.core.save.LoadMetadata;
 import com.helospark.tactview.core.timeline.StatelessEffect;
-import com.helospark.tactview.core.timeline.StatelessVideoEffect;
 import com.helospark.tactview.core.timeline.TimelineInterval;
 import com.helospark.tactview.core.timeline.TimelinePosition;
 import com.helospark.tactview.core.timeline.effect.StatelessEffectRequest;
@@ -38,11 +37,14 @@ public class GlslBarrelBlurEffect extends AbstractRegularGlslStatelessVideoEffec
         this.fragmentShader = "shadertoy:shaders/chroma/barrel_blur_chroma.fs";
     }
 
-    public GlslBarrelBlurEffect(JsonNode node, LoadMetadata loadMetadata) {
-        super(node, loadMetadata);
+    public GlslBarrelBlurEffect(JsonNode node, LoadMetadata loadMetadata, GlslUtil glslUtil, RenderBufferProvider renderBufferProvider, VertexBufferProvider vertexBufferProvider,
+            UniformUtil uniformUtil, ShadertoyHelpers shadertoyHelpers) {
+        super(node, loadMetadata, glslUtil, renderBufferProvider, vertexBufferProvider);
+        this.uniformUtil = uniformUtil;
+        this.shadertoyHelpers = shadertoyHelpers;
     }
 
-    public GlslBarrelBlurEffect(StatelessVideoEffect effect, CloneRequestMetadata cloneRequestMetadata) {
+    public GlslBarrelBlurEffect(GlslBarrelBlurEffect effect, CloneRequestMetadata cloneRequestMetadata) {
         super(effect, cloneRequestMetadata);
 
         ReflectionUtil.copyOrCloneFieldFromTo(effect, this, cloneRequestMetadata);

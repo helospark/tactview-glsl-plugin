@@ -27,6 +27,7 @@ import com.helospark.glslplugin.util.UniformUtil;
 import com.helospark.glslplugin.util.VertexBufferProvider;
 import com.helospark.tactview.core.clone.CloneRequestMetadata;
 import com.helospark.tactview.core.save.LoadMetadata;
+import com.helospark.tactview.core.save.SaveMetadata;
 import com.helospark.tactview.core.timeline.StatelessEffect;
 import com.helospark.tactview.core.timeline.TimelineInterval;
 import com.helospark.tactview.core.timeline.TimelinePosition;
@@ -43,6 +44,7 @@ import com.helospark.tactview.core.timeline.effect.interpolation.provider.PointP
 import com.helospark.tactview.core.timeline.effect.transition.AbstractVideoTransitionEffect;
 import com.helospark.tactview.core.timeline.effect.transition.InternalStatelessVideoTransitionEffectRequest;
 import com.helospark.tactview.core.timeline.image.ClipImage;
+import com.helospark.tactview.core.util.ReflectionUtil;
 
 public class GlTransitionsTransition extends AbstractVideoTransitionEffect {
     protected String vertexShader;
@@ -68,7 +70,13 @@ public class GlTransitionsTransition extends AbstractVideoTransitionEffect {
         this.fragmentShader = fragmentShader;
     }
 
-    public GlTransitionsTransition(JsonNode node, LoadMetadata loadMetadata, RenderBufferProvider renderBufferProvider, VertexBufferProvider vertexBufferProvider, GlslUtil glslUtil,
+    public GlTransitionsTransition(GlTransitionsTransition glTransitionsTransition, CloneRequestMetadata cloneRequestMetadata) {
+        super(glTransitionsTransition, cloneRequestMetadata);
+        ReflectionUtil.copyOrCloneFieldFromTo(glTransitionsTransition, this, GlTransitionsTransition.class, cloneRequestMetadata);
+    }
+
+    public GlTransitionsTransition(JsonNode node, LoadMetadata loadMetadata, RenderBufferProvider renderBufferProvider, VertexBufferProvider vertexBufferProvider,
+            GlslUtil glslUtil,
             UniformUtil uniformUtil) {
         super(node, loadMetadata);
 
@@ -77,8 +85,15 @@ public class GlTransitionsTransition extends AbstractVideoTransitionEffect {
         this.glslUtil = glslUtil;
         this.uniformUtil = uniformUtil;
 
-        vertexShader = "shaders/common/common.vs";
-        fragmentShader = "gltransitions:shaders/gl-transitions/angular.glsl";
+        vertexShader = node.get("vertexShader").asText();
+        fragmentShader = node.get("fragmentShader").asText();
+    }
+
+    @Override
+    protected void generateSavedContentInternal(Map<String, Object> result, SaveMetadata saveMetadata) {
+        super.generateSavedContentInternal(result, saveMetadata);
+        result.put("vertexShader", vertexShader);
+        result.put("fragmentShader", fragmentShader);
     }
 
     @Override
@@ -136,38 +151,38 @@ public class GlTransitionsTransition extends AbstractVideoTransitionEffect {
 
     private KeyframeableEffect convertToParameter(String type, String defaultValueString) {
         switch (type) {
-            case "float" : {
+            case "float": {
                 double defaultValue = Double.parseDouble(defaultValueString);
                 return new DoubleProvider(new MultiKeyframeBasedDoubleInterpolator(defaultValue));
             }
-            case "int" : {
+            case "int": {
                 int defaultValue = Integer.parseInt(defaultValueString);
                 return new DoubleProvider(0, defaultValue * 2, new MultiKeyframeBasedDoubleInterpolator((double) defaultValue));
             }
-            case "vec3" : {
+            case "vec3": {
                 double[] components = parseVec3(defaultValueString);
                 return ColorProvider.fromDefaultValue(components[0], components[1], components[2]);
             }
-            case "vec4" : {
+            case "vec4": {
                 double[] components = parseVec4(defaultValueString);
                 return ColorProvider.fromDefaultValue(components[0], components[1], components[2]);
             }
-            case "ivec2" : {
+            case "ivec2": {
                 double[] components = parseVec2(defaultValueString);
                 return PointProvider.of(components[0], components[1]);
             }
-            case "vec2" : {
+            case "vec2": {
                 double[] components = parseVec2(defaultValueString);
                 return PointProvider.ofNormalizedImagePosition(components[0], components[1]);
             }
-            case "bool" : {
+            case "bool": {
                 boolean defaultValue = Boolean.parseBoolean(defaultValueString);
                 return new BooleanProvider(new MultiKeyframeBasedDoubleInterpolator(defaultValue ? 1.0 : 0.0));
             }
-            case "sampler2D" : {
+            case "sampler2D": {
                 return new DependentClipProvider(new StepStringInterpolator());
             }
-            default :
+            default:
                 throw new RuntimeException("Unknown type " + type);
         }
     }
@@ -309,16 +324,15 @@ public class GlTransitionsTransition extends AbstractVideoTransitionEffect {
                 uniformUtil.bindIntegerPointProviderToUniform(programId, (PointProvider) parameterProvider, position, name);
             } else if (providerType.equals(DependentClipProvider.class)) {
                 // TODO: later
-                //                String clipId = ((DependentClipProvider)parameterProvider).getValueAt(position);
-                //                uniformUtil.bindDependentClipProviderToUniform(programId, (DependentClipProvider) parameterProvider, position, name);
+                // String clipId = ((DependentClipProvider)parameterProvider).getValueAt(position);
+                // uniformUtil.bindDependentClipProviderToUniform(programId, (DependentClipProvider) parameterProvider, position, name);
             }
         }
     }
 
     @Override
     public StatelessEffect cloneEffect(CloneRequestMetadata cloneRequestMetadata) {
-        // TODO Auto-generated method stub
-        return null;
+        return new GlTransitionsTransition(this, cloneRequestMetadata);
     }
 
     static class KeyframeableEffectData {

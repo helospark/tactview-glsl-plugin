@@ -185,9 +185,9 @@ public class GlslUtil {
                 }
             }
 
-            //else {
+            // else {
             // TODO: introduce chain when needed
-            //}
+            // }
 
             logger.debug("Compiling shader:\n" + content);
 
@@ -223,8 +223,8 @@ public class GlslUtil {
     }
 
     public void renderFullScreenQuad() {
-        int[] attachments = {GL31.GL_COLOR_ATTACHMENT1};
-        GL11.glClearColor(0.0f, 1.0f, 0.0f, 1.0f);
+        int[] attachments = { GL31.GL_COLOR_ATTACHMENT1 };
+        GL11.glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
         GL31.glDrawBuffers(attachments);

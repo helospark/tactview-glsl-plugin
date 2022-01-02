@@ -221,8 +221,8 @@ public class GlslEffectFactory {
             UniformUtil uniformUtil) {
         return StandardEffectFactory.builder()
                 .withFactory(request -> new Glsl3DTransformationEffect(new TimelineInterval(request.getPosition(), TimelineLength.ofMillis(5000)), glslUtil, renderBufferProvider,
-                        vertexBufferProvider))
-                .withRestoreFactory((node, loadMetadata) -> new Glsl3DTransformationEffect(node, loadMetadata, glslUtil, renderBufferProvider, vertexBufferProvider))
+                        vertexBufferProvider, uniformUtil))
+                .withRestoreFactory((node, loadMetadata) -> new Glsl3DTransformationEffect(node, loadMetadata, glslUtil, renderBufferProvider, vertexBufferProvider, uniformUtil))
                 .withName("3D transform")
                 .withSupportedEffectId("3dtransform")
                 .withSupportedClipTypes(List.of(TimelineClipType.VIDEO, TimelineClipType.IMAGE))

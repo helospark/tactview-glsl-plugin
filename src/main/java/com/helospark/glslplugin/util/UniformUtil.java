@@ -1,5 +1,7 @@
 package com.helospark.glslplugin.util;
 
+import org.joml.Matrix3f;
+import org.joml.Matrix4f;
 import org.lwjgl.opengl.GL31;
 
 import com.helospark.lightdi.annotation.Component;
@@ -69,6 +71,21 @@ public class UniformUtil {
         Color value = provider.getValueAt(position);
         int uniformLocation = GL31.glGetUniformLocation(programId, name);
         GL31.glUniform4f(uniformLocation, (float) value.red, (float) value.green, (float) value.blue, 1.0f);
+    }
+
+    public void bind3x3Matrix(int programId, String name, Matrix3f normalMatrix) {
+        int uniformLocation = GL31.glGetUniformLocation(programId, name);
+        float[] normalMatrixFloats = new float[9];
+        normalMatrix.get(normalMatrixFloats);
+        GL31.glUniformMatrix3fv(uniformLocation, false, normalMatrixFloats);
+    }
+
+    public void bind4x4Matrix(int programId, String name, Matrix4f mvpMatrix) {
+        int uniformLocation = GL31.glGetUniformLocation(programId, name);
+        float[] matrixFloats = new float[16];
+        mvpMatrix.get(matrixFloats);
+
+        GL31.glUniformMatrix4fv(uniformLocation, false, matrixFloats);
     }
 
 }

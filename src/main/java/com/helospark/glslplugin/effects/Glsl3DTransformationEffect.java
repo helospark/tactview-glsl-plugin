@@ -2,12 +2,13 @@ package com.helospark.glslplugin.effects;
 
 import java.util.List;
 
+import org.joml.Matrix3f;
 import org.joml.Matrix4f;
-import org.lwjgl.opengl.GL31;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.helospark.glslplugin.util.GlslUtil;
 import com.helospark.glslplugin.util.RenderBufferProvider;
+import com.helospark.glslplugin.util.UniformUtil;
 import com.helospark.glslplugin.util.VertexBufferProvider;
 import com.helospark.tactview.core.clone.CloneRequestMetadata;
 import com.helospark.tactview.core.save.LoadMetadata;
@@ -16,11 +17,15 @@ import com.helospark.tactview.core.timeline.TimelineInterval;
 import com.helospark.tactview.core.timeline.TimelinePosition;
 import com.helospark.tactview.core.timeline.effect.StatelessEffectRequest;
 import com.helospark.tactview.core.timeline.effect.interpolation.ValueProviderDescriptor;
+import com.helospark.tactview.core.timeline.effect.interpolation.interpolator.MultiKeyframeBasedDoubleInterpolator;
 import com.helospark.tactview.core.timeline.effect.interpolation.interpolator.bezier.BezierDoubleInterpolator;
+import com.helospark.tactview.core.timeline.effect.interpolation.provider.BooleanProvider;
 import com.helospark.tactview.core.timeline.effect.interpolation.provider.DoubleProvider;
 import com.helospark.tactview.core.util.ReflectionUtil;
 
 public class Glsl3DTransformationEffect extends AbstractRegularGlslStatelessVideoEffect {
+    private UniformUtil uniformUtil;
+
     private DoubleProvider xTranslate;
     private DoubleProvider yTranslate;
     private DoubleProvider zTranslate;
@@ -35,16 +40,24 @@ public class Glsl3DTransformationEffect extends AbstractRegularGlslStatelessVide
 
     private DoubleProvider fieldOfView;
 
-    public Glsl3DTransformationEffect(TimelineInterval interval, GlslUtil glslUtil, RenderBufferProvider renderBufferProvider, VertexBufferProvider vertexBufferProvider) {
+    private BooleanProvider specularHighlightEnabled;
+    private DoubleProvider specularShininessProvider;
+    private DoubleProvider specularLightStrengthProvider;
+
+    public Glsl3DTransformationEffect(TimelineInterval interval, GlslUtil glslUtil, RenderBufferProvider renderBufferProvider, VertexBufferProvider vertexBufferProvider,
+            UniformUtil uniformUtil) {
         super(interval, renderBufferProvider, vertexBufferProvider, glslUtil);
+
+        this.uniformUtil = uniformUtil;
 
         this.vertexShader = "shaders/3dtransform/vertexshader.vs";
         this.fragmentShader = "shaders/3dtransform/fragmentshader.fs";
     }
 
     public Glsl3DTransformationEffect(JsonNode node, LoadMetadata loadMetadata, GlslUtil glslUtil, RenderBufferProvider renderBufferProvider,
-            VertexBufferProvider vertexBufferProvider) {
+            VertexBufferProvider vertexBufferProvider, UniformUtil uniformUtil) {
         super(node, loadMetadata, glslUtil, renderBufferProvider, vertexBufferProvider);
+        this.uniformUtil = uniformUtil;
     }
 
     public Glsl3DTransformationEffect(Glsl3DTransformationEffect effect, CloneRequestMetadata cloneRequestMetadata) {
@@ -68,6 +81,10 @@ public class Glsl3DTransformationEffect extends AbstractRegularGlslStatelessVide
         zScale = new DoubleProvider(0, 10, new BezierDoubleInterpolator(1.0));
 
         fieldOfView = new DoubleProvider(10, 120, new BezierDoubleInterpolator(45.0));
+
+        specularHighlightEnabled = new BooleanProvider(new MultiKeyframeBasedDoubleInterpolator(0.0));
+        specularShininessProvider = new DoubleProvider(1.0, 150.0, new BezierDoubleInterpolator(20.0));
+        specularLightStrengthProvider = new DoubleProvider(0.0, 1.0, new BezierDoubleInterpolator(0.8));
     }
 
     @Override
@@ -126,15 +143,36 @@ public class Glsl3DTransformationEffect extends AbstractRegularGlslStatelessVide
                 .withGroup("camera")
                 .build();
 
+        ValueProviderDescriptor specularHighlightProviderDescriptor = ValueProviderDescriptor.builder()
+                .withKeyframeableEffect(specularHighlightEnabled)
+                .withName("Specular highlight")
+                .withGroup("lighting")
+                .build();
+
+        ValueProviderDescriptor specularShininessProviderDescriptor = ValueProviderDescriptor.builder()
+                .withKeyframeableEffect(specularShininessProvider)
+                .withName("Specular shininess")
+                .withGroup("lighting")
+                .withShowPredicate(time -> specularHighlightEnabled.getValueAt(time))
+                .build();
+        ValueProviderDescriptor specularLightStrengthProviderDescriptor = ValueProviderDescriptor.builder()
+                .withKeyframeableEffect(specularLightStrengthProvider)
+                .withName("Specular strength")
+                .withGroup("lighting")
+                .withShowPredicate(time -> specularHighlightEnabled.getValueAt(time))
+                .build();
+
         return List.of(xTranslateProviderDescriptor, yTranslateProviderDescriptor, zTranslateProviderDescriptor,
                 xRotationProviderDescriptor, yRotationProviderDescriptor, zRotationProviderDescriptor,
-                xScaleProviderDescriptor, yScaleProviderDescriptor, zScaleProviderDescriptor, fieldOfViewProviderDescriptor);
+                xScaleProviderDescriptor, yScaleProviderDescriptor, zScaleProviderDescriptor, fieldOfViewProviderDescriptor,
+                specularHighlightProviderDescriptor, specularShininessProviderDescriptor, specularLightStrengthProviderDescriptor);
     }
 
     @Override
     protected void bindUniforms(int programId, StatelessEffectRequest request) {
+        float aspectRatio = (float) request.getCanvasWidth() / request.getCanvasHeight();
         Matrix4f viewProjectionMatrix = new Matrix4f()
-                .perspective((float) Math.toRadians(fieldOfView.getValueAt(request.getEffectPosition()).floatValue()), 1.0f, 0.01f, 100.0f)
+                .perspective((float) Math.toRadians(fieldOfView.getValueAt(request.getEffectPosition()).floatValue()), aspectRatio, 0.01f, 100.0f)
                 .lookAt(0.0f, 0.0f, 10.0f,
                         0.0f, 0.0f, 0.0f,
                         0.0f, 1.0f, 0.0f);
@@ -144,15 +182,23 @@ public class Glsl3DTransformationEffect extends AbstractRegularGlslStatelessVide
                 .rotate(xRotation.getValueAt(position).floatValue(), 1.0f, 0.0f, 0.0f)
                 .rotate(yRotation.getValueAt(position).floatValue(), 0.0f, 1.0f, 0.0f)
                 .rotate(zRotation.getValueAt(position).floatValue(), 0.0f, 0.0f, 1.0f)
+                .scale(aspectRatio, 1.0f, 1.0f)
                 .scale(xScale.getValueAt(position).floatValue(), yScale.getValueAt(position).floatValue(), zScale.getValueAt(position).floatValue());
 
         Matrix4f mvpMatrix = viewProjectionMatrix.mul(modelMatrix);
 
-        int uniformLocation = GL31.glGetUniformLocation(programId, "modelViewProjectionMatrix");
-        float[] matrixFloats = new float[16];
-        mvpMatrix.get(matrixFloats);
+        uniformUtil.bind4x4Matrix(programId, "modelViewProjectionMatrix", mvpMatrix);
+        uniformUtil.bind4x4Matrix(programId, "modelMatrix", modelMatrix);
 
-        GL31.glUniformMatrix4fv(uniformLocation, false, matrixFloats);
+        Matrix3f normalMatrix = new Matrix3f();
+        mvpMatrix.get3x3(normalMatrix);
+        normalMatrix = normalMatrix.invert().transpose();
+
+        uniformUtil.bind3x3Matrix(programId, "normalMatrix", normalMatrix);
+
+        uniformUtil.bindBooleanProviderToUniform(programId, specularHighlightEnabled, position, "specularEnabled");
+        uniformUtil.bindDoubleProviderToUniform(programId, specularShininessProvider, position, "specularShininess");
+        uniformUtil.bindDoubleProviderToUniform(programId, specularLightStrengthProvider, position, "specularLightStrength");
     }
 
     @Override

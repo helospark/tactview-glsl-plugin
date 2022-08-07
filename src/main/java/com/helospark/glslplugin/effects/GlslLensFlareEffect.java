@@ -138,9 +138,9 @@ public class GlslLensFlareEffect extends StatelessVideoEffect {
             bindInputTexture(height, width, inputBuffer, programId);
 
             TimelinePosition position = request.getEffectPosition();
-            uniformUtil.bindDoubleProviderToUniform(programId, scaleProvider, position, "scale");
-            uniformUtil.bindDoubleProviderToUniform(programId, highlightBiasProvider, position, "uBias");
-            uniformUtil.bindDoubleProviderToUniform(programId, highlightMultiplierProvider, position, "uScale");
+            uniformUtil.bindDoubleProviderToUniform(programId, scaleProvider, position, "scale", request.getEvaluationContext());
+            uniformUtil.bindDoubleProviderToUniform(programId, highlightBiasProvider, position, "uBias", request.getEvaluationContext());
+            uniformUtil.bindDoubleProviderToUniform(programId, highlightMultiplierProvider, position, "uScale", request.getEvaluationContext());
 
             render(programId);
 
@@ -165,11 +165,11 @@ public class GlslLensFlareEffect extends StatelessVideoEffect {
             int lensColorTexture = textureLoader.loadTexture("shaders/lensflare/data/lenscolor.png").getId();
             glBindTexture(GL31.GL_TEXTURE_2D, lensColorTexture);
 
-            uniformUtil.bindDoubleProviderToUniform(programId, ghostDispersalProvider, position, "uGhostDispersal");
-            uniformUtil.bindDoubleProviderToUniform(programId, haloWidthProvider, position, "uHaloWidth");
-            uniformUtil.bindDoubleProviderToUniform(programId, haloDistortionProvider, position, "uDistortion");
-            uniformUtil.bindDoubleProviderToUniform(programId, distanceFalloffProvider, position, "distanceFalloff");
-            uniformUtil.bindIntegerProviderToUniform(programId, maxGhostsProvider, position, "maxGhosts");
+            uniformUtil.bindDoubleProviderToUniform(programId, ghostDispersalProvider, position, "uGhostDispersal", request.getEvaluationContext());
+            uniformUtil.bindDoubleProviderToUniform(programId, haloWidthProvider, position, "uHaloWidth", request.getEvaluationContext());
+            uniformUtil.bindDoubleProviderToUniform(programId, haloDistortionProvider, position, "uDistortion", request.getEvaluationContext());
+            uniformUtil.bindDoubleProviderToUniform(programId, distanceFalloffProvider, position, "distanceFalloff", request.getEvaluationContext());
+            uniformUtil.bindIntegerProviderToUniform(programId, maxGhostsProvider, position, "maxGhosts", request.getEvaluationContext());
 
             uniformUtil.bindIntegerToUniform(programId, 1, "tLensColor");
             uniformUtil.bindVec2ToUniform(programId, downSampledWidth, downSampledHeight, "textureSize");
@@ -201,8 +201,8 @@ public class GlslLensFlareEffect extends StatelessVideoEffect {
             glBindTexture(GL_TEXTURE_2D, textureLoader.loadTexture("shaders/lensflare/data/lensstar.png").getId());
             uniformUtil.bindIntegerToUniform(programId, 3, "tLensStar");
 
-            uniformUtil.bindDoubleProviderToUniform(programId, artifactScaleProvider, position, "artefactScale");
-            uniformUtil.bindDoubleProviderToUniform(programId, effectStrengthProvider, position, "effectStrength");
+            uniformUtil.bindDoubleProviderToUniform(programId, artifactScaleProvider, position, "artefactScale", request.getEvaluationContext());
+            uniformUtil.bindDoubleProviderToUniform(programId, effectStrengthProvider, position, "effectStrength", request.getEvaluationContext());
 
             render(programId);
 

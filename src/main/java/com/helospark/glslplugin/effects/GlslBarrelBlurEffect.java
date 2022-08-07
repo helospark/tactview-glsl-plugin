@@ -68,7 +68,7 @@ public class GlslBarrelBlurEffect extends AbstractRegularGlslStatelessVideoEffec
     @Override
     protected void bindUniforms(int programId, StatelessEffectRequest request) {
         TimelinePosition requestPosition = request.getEffectPosition();
-        uniformUtil.bindDoubleProviderToUniform(programId, amountProvider, requestPosition, "amount");
+        uniformUtil.bindDoubleProviderToUniform(programId, amountProvider, requestPosition, "amount", request.getEvaluationContext());
 
         shadertoyHelpers.attachCommonShadertoyUniforms(request, programId);
 

@@ -83,7 +83,7 @@ public class GlslTvEffect extends AbstractRegularGlslStatelessVideoEffect {
 
     @Override
     protected void initRender(StatelessEffectRequest request) {
-        ValueListElement value = typeProvider.getValueAt(request.getEffectPosition());
+        ValueListElement value = typeProvider.getValueAt(request.getEffectPosition(), request.getEvaluationContext());
 
         this.fragmentShader = value.getId();
     }
@@ -101,7 +101,7 @@ public class GlslTvEffect extends AbstractRegularGlslStatelessVideoEffect {
     protected void bindUniforms(int programId, StatelessEffectRequest request) {
         shadertoyHelpers.attachCommonShadertoyUniforms(request, programId);
 
-        ValueListElement value = typeProvider.getValueAt(request.getEffectPosition());
+        ValueListElement value = typeProvider.getValueAt(request.getEffectPosition(), request.getEvaluationContext());
         if (value.getId().endsWith("vcrtape.fs")) {
             shadertoyHelpers.attachTextures(programId, "shaders/glitch/texture/rgbnoise.png");
         } else if (value.getId().endsWith("vcr_2.fs")) {

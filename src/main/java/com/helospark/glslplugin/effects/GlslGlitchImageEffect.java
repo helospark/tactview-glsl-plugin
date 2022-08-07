@@ -77,7 +77,7 @@ public class GlslGlitchImageEffect extends AbstractRegularGlslStatelessVideoEffe
 
     @Override
     protected void initRender(StatelessEffectRequest request) {
-        ValueListElement value = glitchTypeProvider.getValueAt(request.getEffectPosition());
+        ValueListElement value = glitchTypeProvider.getValueAt(request.getEffectPosition(), request.getEvaluationContext());
 
         this.fragmentShader = value.getId();
     }
@@ -95,7 +95,7 @@ public class GlslGlitchImageEffect extends AbstractRegularGlslStatelessVideoEffe
     protected void bindUniforms(int programId, StatelessEffectRequest request) {
         shadertoyHelpers.attachCommonShadertoyUniforms(request, programId);
 
-        ValueListElement value = glitchTypeProvider.getValueAt(request.getEffectPosition());
+        ValueListElement value = glitchTypeProvider.getValueAt(request.getEffectPosition(), request.getEvaluationContext());
         if (value.getId().endsWith("digitalglitch.fs")) {
             shadertoyHelpers.attachTextures(programId, "shaders/glitch/texture/noise64.png");
         } else if (value.getId().endsWith("mpeg_artifacts.fs") || value.getId().endsWith("rgbshiftglitch.fs")) {

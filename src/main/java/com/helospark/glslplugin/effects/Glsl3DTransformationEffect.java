@@ -153,13 +153,13 @@ public class Glsl3DTransformationEffect extends AbstractRegularGlslStatelessVide
                 .withKeyframeableEffect(specularShininessProvider)
                 .withName("Specular shininess")
                 .withGroup("lighting")
-                .withShowPredicate(time -> specularHighlightEnabled.getValueAt(time))
+                .withShowPredicate(time -> specularHighlightEnabled.getValueWithoutScriptAt(time))
                 .build();
         ValueProviderDescriptor specularLightStrengthProviderDescriptor = ValueProviderDescriptor.builder()
                 .withKeyframeableEffect(specularLightStrengthProvider)
                 .withName("Specular strength")
                 .withGroup("lighting")
-                .withShowPredicate(time -> specularHighlightEnabled.getValueAt(time))
+                .withShowPredicate(time -> specularHighlightEnabled.getValueWithoutScriptAt(time))
                 .build();
 
         return List.of(xTranslateProviderDescriptor, yTranslateProviderDescriptor, zTranslateProviderDescriptor,
@@ -172,18 +172,20 @@ public class Glsl3DTransformationEffect extends AbstractRegularGlslStatelessVide
     protected void bindUniforms(int programId, StatelessEffectRequest request) {
         float aspectRatio = (float) request.getCanvasWidth() / request.getCanvasHeight();
         Matrix4f viewProjectionMatrix = new Matrix4f()
-                .perspective((float) Math.toRadians(fieldOfView.getValueAt(request.getEffectPosition()).floatValue()), aspectRatio, 0.01f, 100.0f)
+                .perspective((float) Math.toRadians(fieldOfView.getValueAt(request.getEffectPosition(), request.getEvaluationContext()).floatValue()), aspectRatio, 0.01f, 100.0f)
                 .lookAt(0.0f, 0.0f, 10.0f,
                         0.0f, 0.0f, 0.0f,
                         0.0f, 1.0f, 0.0f);
         TimelinePosition position = request.getEffectPosition();
         Matrix4f modelMatrix = new Matrix4f()
-                .translate(xTranslate.getValueAt(position).floatValue(), yTranslate.getValueAt(position).floatValue(), zTranslate.getValueAt(position).floatValue())
-                .rotate(xRotation.getValueAt(position).floatValue(), 1.0f, 0.0f, 0.0f)
-                .rotate(yRotation.getValueAt(position).floatValue(), 0.0f, 1.0f, 0.0f)
-                .rotate(zRotation.getValueAt(position).floatValue(), 0.0f, 0.0f, 1.0f)
+                .translate(xTranslate.getValueAt(position, request.getEvaluationContext()).floatValue(), yTranslate.getValueAt(position, request.getEvaluationContext()).floatValue(),
+                        zTranslate.getValueAt(position, request.getEvaluationContext()).floatValue())
+                .rotate(xRotation.getValueAt(position, request.getEvaluationContext()).floatValue(), 1.0f, 0.0f, 0.0f)
+                .rotate(yRotation.getValueAt(position, request.getEvaluationContext()).floatValue(), 0.0f, 1.0f, 0.0f)
+                .rotate(zRotation.getValueAt(position, request.getEvaluationContext()).floatValue(), 0.0f, 0.0f, 1.0f)
                 .scale(aspectRatio, 1.0f, 1.0f)
-                .scale(xScale.getValueAt(position).floatValue(), yScale.getValueAt(position).floatValue(), zScale.getValueAt(position).floatValue());
+                .scale(xScale.getValueAt(position, request.getEvaluationContext()).floatValue(), yScale.getValueAt(position, request.getEvaluationContext()).floatValue(),
+                        zScale.getValueAt(position, request.getEvaluationContext()).floatValue());
 
         Matrix4f mvpMatrix = viewProjectionMatrix.mul(modelMatrix);
 
@@ -196,9 +198,9 @@ public class Glsl3DTransformationEffect extends AbstractRegularGlslStatelessVide
 
         uniformUtil.bind3x3Matrix(programId, "normalMatrix", normalMatrix);
 
-        uniformUtil.bindBooleanProviderToUniform(programId, specularHighlightEnabled, position, "specularEnabled");
-        uniformUtil.bindDoubleProviderToUniform(programId, specularShininessProvider, position, "specularShininess");
-        uniformUtil.bindDoubleProviderToUniform(programId, specularLightStrengthProvider, position, "specularLightStrength");
+        uniformUtil.bindBooleanProviderToUniform(programId, specularHighlightEnabled, position, "specularEnabled", request.getEvaluationContext());
+        uniformUtil.bindDoubleProviderToUniform(programId, specularShininessProvider, position, "specularShininess", request.getEvaluationContext());
+        uniformUtil.bindDoubleProviderToUniform(programId, specularLightStrengthProvider, position, "specularLightStrength", request.getEvaluationContext());
     }
 
     @Override

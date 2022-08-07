@@ -75,8 +75,8 @@ public class GlslMatrixRainEffect extends AbstractRegularGlslStatelessVideoEffec
     protected void bindUniforms(int programId, StatelessEffectRequest request) {
         shadertoyHelpers.attachCommonShadertoyUniforms(request, programId);
 
-        uniformUtil.bindDoubleProviderToUniform(programId, rainSpeedProvider, request.getEffectPosition(), "rainSpeed");
-        uniformUtil.bindDoubleProviderToUniform(programId, dropSizeProvider, request.getEffectPosition(), "dropSize");
+        uniformUtil.bindDoubleProviderToUniform(programId, rainSpeedProvider, request.getEffectPosition(), "rainSpeed", request.getEvaluationContext());
+        uniformUtil.bindDoubleProviderToUniform(programId, dropSizeProvider, request.getEffectPosition(), "dropSize", request.getEvaluationContext());
     }
 
     @Override

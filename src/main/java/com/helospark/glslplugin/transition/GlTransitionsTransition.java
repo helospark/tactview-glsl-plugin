@@ -308,20 +308,20 @@ public class GlTransitionsTransition extends AbstractVideoTransitionEffect {
             Class<? extends KeyframeableEffect> providerType = parameterProvider.getClass();
 
             if (providerType.equals(DoubleProvider.class)) {
-                uniformUtil.bindDoubleProviderToUniform(programId, (DoubleProvider) parameterProvider, position, name);
+                uniformUtil.bindDoubleProviderToUniform(programId, (DoubleProvider) parameterProvider, position, name, request.getEvaluationContext());
             } else if (providerType.equals(BooleanProvider.class)) {
                 BooleanProvider booleanProvider = (BooleanProvider) parameterProvider;
-                uniformUtil.bindIntegerToUniform(programId, booleanProvider.getValueAt(position) ? 1 : 0, name);
+                uniformUtil.bindIntegerToUniform(programId, booleanProvider.getValueAt(position, request.getEvaluationContext()) ? 1 : 0, name);
             } else if (providerType.equals(IntegerProvider.class)) {
-                uniformUtil.bindIntegerProviderToUniform(programId, (IntegerProvider) parameterProvider, position, name);
+                uniformUtil.bindIntegerProviderToUniform(programId, (IntegerProvider) parameterProvider, position, name, request.getEvaluationContext());
             } else if (providerType.equals(ColorProvider.class) && type.equals("vec3")) { // TODO: ColorWithAlphaProvider
-                uniformUtil.bindColorProviderToUniform(programId, (ColorProvider) parameterProvider, position, name);
+                uniformUtil.bindColorProviderToUniform(programId, (ColorProvider) parameterProvider, position, name, request.getEvaluationContext());
             } else if (providerType.equals(ColorProvider.class) && type.equals("vec4")) { // TODO: ColorWithAlphaProvider
-                uniformUtil.bindColorProvider4ProviderToUniform(programId, (ColorProvider) parameterProvider, position, name);
+                uniformUtil.bindColorProvider4ProviderToUniform(programId, (ColorProvider) parameterProvider, position, name, request.getEvaluationContext());
             } else if (providerType.equals(PointProvider.class) && type.equals("vec2")) {
-                uniformUtil.bindPointProviderToUniform(programId, (PointProvider) parameterProvider, position, name);
+                uniformUtil.bindPointProviderToUniform(programId, (PointProvider) parameterProvider, position, name, request.getEvaluationContext());
             } else if (providerType.equals(PointProvider.class) && type.equals("ivec2")) {
-                uniformUtil.bindIntegerPointProviderToUniform(programId, (PointProvider) parameterProvider, position, name);
+                uniformUtil.bindIntegerPointProviderToUniform(programId, (PointProvider) parameterProvider, position, name, request.getEvaluationContext());
             } else if (providerType.equals(DependentClipProvider.class)) {
                 // TODO: later
                 // String clipId = ((DependentClipProvider)parameterProvider).getValueAt(position);

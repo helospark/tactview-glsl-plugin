@@ -60,7 +60,7 @@ public class GlslRainEffect extends AbstractRegularGlslStatelessVideoEffect {
 
     @Override
     protected void initRender(StatelessEffectRequest request) {
-        ValueListElement value = glitchTypeProvider.getValueAt(request.getEffectPosition());
+        ValueListElement value = glitchTypeProvider.getValueAt(request.getEffectPosition(), request.getEvaluationContext());
 
         this.fragmentShader = value.getId();
     }
@@ -78,7 +78,7 @@ public class GlslRainEffect extends AbstractRegularGlslStatelessVideoEffect {
     protected void bindUniforms(int programId, StatelessEffectRequest request) {
         shadertoyHelpers.attachCommonShadertoyUniforms(request, programId);
 
-        ValueListElement value = glitchTypeProvider.getValueAt(request.getEffectPosition());
+        ValueListElement value = glitchTypeProvider.getValueAt(request.getEffectPosition(), request.getEvaluationContext());
         if (value.getId().endsWith("raindrops_on_window.fs")) {
             shadertoyHelpers.attachTextures(programId, "shaders/glitch/texture/noise64.png");
         }

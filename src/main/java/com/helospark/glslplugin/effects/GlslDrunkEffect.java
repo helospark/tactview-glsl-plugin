@@ -86,10 +86,10 @@ public class GlslDrunkEffect extends AbstractRegularGlslStatelessVideoEffect {
     protected void bindUniforms(int programId, StatelessEffectRequest request) {
         shadertoyHelpers.attachCommonShadertoyUniforms(request, programId);
 
-        uniformUtil.bindDoubleProviderToUniform(programId, speedProvider, request.getEffectPosition(), "speed");
-        uniformUtil.bindDoubleProviderToUniform(programId, vignetteStrengthProvider, request.getEffectPosition(), "vignetteStrength");
-        uniformUtil.bindDoubleProviderToUniform(programId, wobbleMultiplierProvider, request.getEffectPosition(), "wobbleMultiplier");
-        uniformUtil.bindDoubleProviderToUniform(programId, zoomAmountProvider, request.getEffectPosition(), "zoomAmount");
+        uniformUtil.bindDoubleProviderToUniform(programId, speedProvider, request.getEffectPosition(), "speed", request.getEvaluationContext());
+        uniformUtil.bindDoubleProviderToUniform(programId, vignetteStrengthProvider, request.getEffectPosition(), "vignetteStrength", request.getEvaluationContext());
+        uniformUtil.bindDoubleProviderToUniform(programId, wobbleMultiplierProvider, request.getEffectPosition(), "wobbleMultiplier", request.getEvaluationContext());
+        uniformUtil.bindDoubleProviderToUniform(programId, zoomAmountProvider, request.getEffectPosition(), "zoomAmount", request.getEvaluationContext());
     }
 
     @Override

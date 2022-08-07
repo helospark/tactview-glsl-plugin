@@ -94,7 +94,7 @@ public class GlslFilmEffect extends AbstractRegularGlslStatelessVideoEffect {
         ValueProviderDescriptor coloramountDescriptor = ValueProviderDescriptor.builder()
                 .withKeyframeableEffect(coloramount)
                 .withName("coloramount")
-                .withEnabledIf(p -> colored.getValueAt(p))
+                .withEnabledIf(p -> colored.getValueWithoutScriptAt(p))
                 .build();
         ValueProviderDescriptor grainsizeDescriptor = ValueProviderDescriptor.builder()
                 .withKeyframeableEffect(grainsize)
@@ -119,7 +119,7 @@ public class GlslFilmEffect extends AbstractRegularGlslStatelessVideoEffect {
         ValueProviderDescriptor blurAmountDescriptor = ValueProviderDescriptor.builder()
                 .withKeyframeableEffect(blurAmount)
                 .withName("blurAmount")
-                .withEnabledIf(p -> blurEnabled.getValueAt(p))
+                .withEnabledIf(p -> blurEnabled.getValueWithoutScriptAt(p))
                 .build();
         ValueProviderDescriptor dispersionDescriptor = ValueProviderDescriptor.builder()
                 .withKeyframeableEffect(dispersion)
@@ -158,21 +158,21 @@ public class GlslFilmEffect extends AbstractRegularGlslStatelessVideoEffect {
         uniformUtil.bindVec2ToUniform(programId, request.getCurrentFrame().getWidth() / request.getScale(), request.getCurrentFrame().getHeight() / request.getScale(),
                 "resolution");
 
-        uniformUtil.bindDoubleProviderToUniform(programId, grainamount, requestPosition, "grainamount");
-        uniformUtil.bindBooleanProviderToUniform(programId, colored, requestPosition, "colored");
-        uniformUtil.bindDoubleProviderToUniform(programId, coloramount, requestPosition, "coloramount");
-        uniformUtil.bindDoubleProviderToUniform(programId, grainsize, requestPosition, "grainsize");
-        uniformUtil.bindDoubleProviderToUniform(programId, lumamount, requestPosition, "lumamount");
-        uniformUtil.bindDoubleProviderToUniform(programId, k, requestPosition, "k");
-        uniformUtil.bindDoubleProviderToUniform(programId, kcube, requestPosition, "kcube");
-        uniformUtil.bindDoubleProviderToUniform(programId, scale, requestPosition, "scale");
-        uniformUtil.bindDoubleProviderToUniform(programId, dispersion, requestPosition, "dispersion");
-        uniformUtil.bindDoubleProviderToUniform(programId, blurAmount, requestPosition, "blurAmount");
-        uniformUtil.bindBooleanProviderToUniform(programId, blurEnabled, requestPosition, "blurEnabled");
-        uniformUtil.bindDoubleProviderToUniform(programId, scratches, requestPosition, "scratches");
-        uniformUtil.bindDoubleProviderToUniform(programId, burn, requestPosition, "burn");
-        uniformUtil.bindDoubleProviderToUniform(programId, vignette_size, requestPosition, "vignette_size");
-        uniformUtil.bindDoubleProviderToUniform(programId, tolerance, requestPosition, "tolerance");
+        uniformUtil.bindDoubleProviderToUniform(programId, grainamount, requestPosition, "grainamount", request.getEvaluationContext());
+        uniformUtil.bindBooleanProviderToUniform(programId, colored, requestPosition, "colored", request.getEvaluationContext());
+        uniformUtil.bindDoubleProviderToUniform(programId, coloramount, requestPosition, "coloramount", request.getEvaluationContext());
+        uniformUtil.bindDoubleProviderToUniform(programId, grainsize, requestPosition, "grainsize", request.getEvaluationContext());
+        uniformUtil.bindDoubleProviderToUniform(programId, lumamount, requestPosition, "lumamount", request.getEvaluationContext());
+        uniformUtil.bindDoubleProviderToUniform(programId, k, requestPosition, "k", request.getEvaluationContext());
+        uniformUtil.bindDoubleProviderToUniform(programId, kcube, requestPosition, "kcube", request.getEvaluationContext());
+        uniformUtil.bindDoubleProviderToUniform(programId, scale, requestPosition, "scale", request.getEvaluationContext());
+        uniformUtil.bindDoubleProviderToUniform(programId, dispersion, requestPosition, "dispersion", request.getEvaluationContext());
+        uniformUtil.bindDoubleProviderToUniform(programId, blurAmount, requestPosition, "blurAmount", request.getEvaluationContext());
+        uniformUtil.bindBooleanProviderToUniform(programId, blurEnabled, requestPosition, "blurEnabled", request.getEvaluationContext());
+        uniformUtil.bindDoubleProviderToUniform(programId, scratches, requestPosition, "scratches", request.getEvaluationContext());
+        uniformUtil.bindDoubleProviderToUniform(programId, burn, requestPosition, "burn", request.getEvaluationContext());
+        uniformUtil.bindDoubleProviderToUniform(programId, vignette_size, requestPosition, "vignette_size", request.getEvaluationContext());
+        uniformUtil.bindDoubleProviderToUniform(programId, tolerance, requestPosition, "tolerance", request.getEvaluationContext());
     }
 
     @Override

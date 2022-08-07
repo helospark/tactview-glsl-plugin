@@ -86,10 +86,10 @@ public class GlslNightVisionEffect extends AbstractRegularGlslStatelessVideoEffe
     protected void bindUniforms(int programId, StatelessEffectRequest request) {
         shadertoyHelpers.attachCommonShadertoyUniforms(request, programId);
 
-        uniformUtil.bindDoubleProviderToUniform(programId, horizontalVignetteProvider, request.getEffectPosition(), "horizontalVignette");
-        uniformUtil.bindDoubleProviderToUniform(programId, verticalVignetteProvider, request.getEffectPosition(), "verticalVignette");
-        uniformUtil.bindDoubleProviderToUniform(programId, noiseStrengthProvider, request.getEffectPosition(), "noiseStrength");
-        uniformUtil.bindDoubleProviderToUniform(programId, lightMultiplierProvider, request.getEffectPosition(), "lightMultiplier");
+        uniformUtil.bindDoubleProviderToUniform(programId, horizontalVignetteProvider, request.getEffectPosition(), "horizontalVignette", request.getEvaluationContext());
+        uniformUtil.bindDoubleProviderToUniform(programId, verticalVignetteProvider, request.getEffectPosition(), "verticalVignette", request.getEvaluationContext());
+        uniformUtil.bindDoubleProviderToUniform(programId, noiseStrengthProvider, request.getEffectPosition(), "noiseStrength", request.getEvaluationContext());
+        uniformUtil.bindDoubleProviderToUniform(programId, lightMultiplierProvider, request.getEffectPosition(), "lightMultiplier", request.getEvaluationContext());
     }
 
     @Override

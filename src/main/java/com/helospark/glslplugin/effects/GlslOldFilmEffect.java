@@ -55,7 +55,7 @@ public class GlslOldFilmEffect extends AbstractRegularGlslStatelessVideoEffect {
 
     @Override
     protected void initRender(StatelessEffectRequest request) {
-        ValueListElement value = typeProvider.getValueAt(request.getEffectPosition());
+        ValueListElement value = typeProvider.getValueAt(request.getEffectPosition(), request.getEvaluationContext());
 
         this.fragmentShader = value.getId();
     }
